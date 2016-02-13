@@ -113,6 +113,7 @@ public class Reseau  {
         logger.info("Reseau: Le reseau démarre son tinitialisation.");
         try {
 
+            //Création des threads pour tous les routeurs
 
         } catch (Exception e) {
                 System.out.println("IO: " + e.getMessage());
