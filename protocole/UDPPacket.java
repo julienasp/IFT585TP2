@@ -7,8 +7,8 @@ public class UDPPacket implements Serializable {
 
     private static final long serialVersionUID = 2622663736791338175L;
 		
-    final static public int FILEUPLOAD = 0;
-    final static public int FILEDOWNLOAD = 1;
+    final static public int UPDATE = 0;
+    final static public int FOWARD = 1;
 		
     private int type;				// type de connexion upload ou download
     private int seq = 0; 			// numéro de séquence 
@@ -37,12 +37,12 @@ public class UDPPacket implements Serializable {
     /**BELOW WE CAN FIND ALL THE USEFUL METHODS FOR AN UDPPACKET**/
     /*************************************************************/
     
-    public boolean isForDownload(){
-        return (type == FILEDOWNLOAD);
+    public boolean isForUpdate(){
+        return (type == UPDATE);
     }
     
-    public boolean isForUpload(){
-        return (type == FILEUPLOAD);
+    public boolean isForFoward(){
+        return (type == FOWARD);
     }
     
     public boolean isTheLastPacket(){
