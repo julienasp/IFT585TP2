@@ -38,8 +38,7 @@ public class Reseau  {
     /**************************************/
     /************ CONSTRUCTOR *************/
     /**************************************/
-    public Reseau(int typeDeRoutage) {
-        this.typeDeRoutage = typeDeRoutage;
+    public Reseau() {        
     }
 
    
