@@ -4,16 +4,11 @@
  */
 package dataObject;
 
-import dataObject.*;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.util.Hashtable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
-import protocole.UDPPacket;
-
 
 public class Reseau  {
     /**************************************/
@@ -26,7 +21,8 @@ public class Reseau  {
     /**************************************/
     /********* PRIVATE ATTRIBUTS **********/
     /**************************************/
-    private int typeDeRoutage;
+    private int typeDeRoutage;    
+    private ExecutorService pool;
     private Hashtable<String, Routeur> listeRouteurs = new Hashtable<String, Routeur>();
     private Hashtable<String, Arc> listeArcs = new Hashtable<String,Arc>();
     private Hashtable<String, Hote> listeHotes = new Hashtable<String,Hote>();
@@ -110,10 +106,18 @@ public class Reseau  {
     /*************   METHODS  *************/
     /**************************************/
     public void start() {		
-        logger.info("Reseau: Le reseau démarre son tinitialisation.");
+        logger.info("Reseau: Le reseau démarre sont initialisation.");
         try {
-
+            //On creer un pool de thread afin de simplifier la fermeture
+            pool = Executors.newFixedThreadPool(25);
+            
             //Création des threads pour tous les routeurs
+            logger.info("Reseau: ouverture des threads pour les routeurs");
+            for (Routeur routeur : listeRouteurs.values()) {
+                //routeur.setTypeRoutage(typeDeRoutage);
+                pool.execute(routeur);
+                logger.info("Reseau: new runnable pour le routeur: " + routeur.getNomRouteur());
+            } 
 
         } catch (Exception e) {
                 System.out.println("IO: " + e.getMessage());
@@ -121,7 +125,27 @@ public class Reseau  {
         finally {
                 logger.info("Fin de l'initialisation du reseau");                
         }
-    }    
-        
+    }
+    
+    public void stop(){
+        // Disable new tasks from being submitted
+        pool.shutdown(); 
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+                pool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!pool.awaitTermination(60, TimeUnit.SECONDS)){
+                        logger.debug("Reseau: Pool did not terminate");
+                }
+            }
+        } catch (InterruptedException ie) {
+                // (Re-)Cancel if current thread also interrupted
+                pool.shutdownNow();
+                // Preserve interrupt status
+                Thread.currentThread().interrupt();
+        }
+	
+    }        
     
 }
