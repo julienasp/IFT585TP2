@@ -2,6 +2,9 @@ package protocole;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UDPPacket implements Serializable {
 
@@ -19,12 +22,25 @@ public class UDPPacket implements Serializable {
     private int destinationPort;		// port du destinataire
     private InetAddress sourceAdr; 		// adresse de l'émetteur
     private int sourcePort;                     // port source du paquet
+    
 
     /*************************************************************/
     /***BELOW WE CAN FIND ALL CONSTRUCTORS FOR AN UDPPACKET*******/
     /*************************************************************/
     
-    public UDPPacket(int type, InetAddress sourceAdr, int sourcePort,InetAddress destination, int destinationPort) {
+    public UDPPacket(int type, int destinationPort, int sourcePort) {
+        this.type = type;
+        this.destinationPort = destinationPort;
+        this.sourcePort = sourcePort;        
+        try {
+            this.sourceAdr = InetAddress.getLocalHost();
+            this.destination = InetAddress.getLocalHost();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(UDPPacket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public UDPPacket(int type, InetAddress sourceAdr, int sourcePort, InetAddress destination, int destinationPort) {
         this.type = type;
         this.sourceAdr = sourceAdr;
         this.sourcePort = sourcePort;

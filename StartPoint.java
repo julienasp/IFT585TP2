@@ -92,8 +92,10 @@ public class StartPoint {
                 }
 		
                 //Timer pour l'attente du routage
-                
-                h1.envoyerUnMessage("Hello beautiful world!",h2.getPort());
+                h1.start(); // Pour la reception de message
+                h2.start(); // Pour la reception de message
+                h1.envoyerMessage("h1 to h2: Hello beautiful world!",h2.getPort());
+                h2.envoyerMessage("h2 to h1: Hello beautiful Host!",h1.getPort());
 		
 	}
 
