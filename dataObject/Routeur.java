@@ -4,7 +4,6 @@
  */
 package dataObject;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 import org.apache.log4j.Logger;
 
@@ -12,6 +11,8 @@ public class Routeur implements Runnable {
     private String nomRouteur;
     private int port;
     private int typeRoutage;
+    private int indiceCoutLS;
+    private String predecesseurRouteurLS;
     private Hashtable<String, Routeur> listeRouteurs = new Hashtable<String, Routeur>();
     private Hashtable<String, Arc> listeArcs = new Hashtable<String,Arc>();
     private Hashtable<String, Hote> listeHotes = new Hashtable<String,Hote>();
@@ -55,6 +56,30 @@ public class Routeur implements Runnable {
 
     public void setListeRouteurs(Hashtable<String, Routeur> listeRouteurs) {
         this.listeRouteurs = listeRouteurs;
+    }
+
+    public int getIndiceCoutLS() {
+        return indiceCoutLS;
+    }
+
+    public void setIndiceCoutLS(int indiceCoutLS) {
+        this.indiceCoutLS = indiceCoutLS;
+    }
+
+    public Hashtable<Integer, Hote> getTableRoutageHote() {
+        return tableRoutageHote;
+    }
+
+    public void setTableRoutageHote(Hashtable<Integer, Hote> tableRoutageHote) {
+        this.tableRoutageHote = tableRoutageHote;
+    }
+
+    public String getPredecesseurRouteurLS() {
+        return predecesseurRouteurLS;
+    }
+
+    public void setPredecesseurRouteurLS(String predecesseurRouteurLS) {
+        this.predecesseurRouteurLS = predecesseurRouteurLS;
     }
 
     
@@ -108,11 +133,11 @@ public class Routeur implements Runnable {
        listeRouteurs.remove(nomRouteur);
     }
     
-    public void ajouterRouteurTableRoutageLS(int portDestitation,Routeur fowardRouter) {
+    public void ajouterRouteTableRoutageLS(int portDestitation,Routeur fowardRouter) {
        tableRoutageLS.put(portDestitation, fowardRouter);
     }
     
-    public void retirerRouteurTableRoutageLS(int portDestitation) {
+    public void retirerRouteTableRoutageLS(int portDestitation) {
        tableRoutageLS.remove(portDestitation);
     }
     
@@ -132,24 +157,75 @@ public class Routeur implements Runnable {
         }  
         return -1; // retourne -1 si l'arc n'existe pas
     }
-    public ArrayList<Routeur> trouverVoisin(String routeurSource){
+    private Hashtable<String,Routeur> trouverVoisin(String routeurSource){
         logger.info("Routeur: trouverVoisin():Permet de trouver les voisins d'un routeur source: ");
         
-        ArrayList<Routeur> routeurVoisin = new ArrayList<Routeur>();
+        Hashtable<String,Routeur> routeurVoisin = new Hashtable<String,Routeur>();
         
         for (Arc value : listeArcs.values()) {
             if(( value.getRouteurA().getNomRouteur().equals(routeurSource) )){
-                routeurVoisin.add(value.getRouteurB());
+                routeurVoisin.put(value.getRouteurB().getNomRouteur(),value.getRouteurB());
             }
             if(( value.getRouteurB().getNomRouteur().equals(routeurSource) )){
-                routeurVoisin.add(value.getRouteurA());
+                routeurVoisin.put(value.getRouteurB().getNomRouteur(),value.getRouteurA());
             }
         }
         return routeurVoisin;
     }
-    private void calculPourLs(){
-    logger.info("Routeur: calculPourLs(): Début de l'algorithme pour trouver les chemins les plus courts pour le routeur source: " + this.getNomRouteur());
     
+    private String trouverPlusPetitDW(Hashtable<String, Routeur> listeW){
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): on trouve le w le avec le plus petit D(w)");
+        int indice = 100000;
+        String nom = "";        
+        for (Routeur routeurCourant : listeW.values()) {
+            if(routeurCourant.getIndiceCoutLS() <= indice)
+            {
+                indice = routeurCourant.getIndiceCoutLS();
+                nom = routeurCourant.getNomRouteur();
+            }
+        }        
+        return nom;
+    }
+    private void calculPourLs(){
+        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): Début de l'algorithme pour trouver les chemins les plus courts pour le routeur source: " + this.getNomRouteur());
+
+         //Sous-ensemble de routeur ou le chemin le plus court est connu
+        Hashtable<String, Routeur> N = new Hashtable<String, Routeur>();
+        
+        //Ajout du chemin le plus court pour le routeur source
+        ajouterRouteTableRoutageLS(this.getPort(),this);
+        
+        //Ajout du source dans N
+        N.put(this.getNomRouteur(),this);
+        
+        //Routeur voisin de source
+        Hashtable<String,Routeur> routeurVoisin = trouverVoisin(this.getNomRouteur());
+        
+        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): initialisation des côuts D(v) pour le routeur: " + this.getNomRouteur());
+        
+        //On évite que tous les threads modifie la même liste.
+        Hashtable<String, Routeur> cloneListe = new Hashtable<String, Routeur>(listeRouteurs) ;
+        
+        cloneListe.remove(this.getNomRouteur());
+        
+        for (Routeur routeurCourant : cloneListe.values()) {
+            if(routeurVoisin.containsKey(routeurCourant.getNomRouteur())){
+                routeurCourant.setIndiceCoutLS(trouverCoutPour(this.getNomRouteur(),routeurCourant.getNomRouteur()));
+                routeurCourant.setPredecesseurRouteurLS(this.getNomRouteur());
+            }
+            else{
+                routeurCourant.setIndiceCoutLS(1000000); //infini
+            }
+        } 
+        
+        do{
+            String w = trouverPlusPetitDW(cloneListe);
+        }while(true);
+        
+        
+        
+        
+        
         
     }
      public void start() {		
@@ -157,8 +233,8 @@ public class Routeur implements Runnable {
         try {            
            if(typeRoutage == Reseau.LSROUTING){
                //Génération des meilleurs chemins avec LS
-               logger.info("Routeur: Le routeur: " + this.getNomRouteur() + "a été démarré sur le port: " + this.getPort());
-               logger.info("Routeur: Le routeur: " + this.getNomRouteur() + "utilise un routage de type LS (LINK-STATE)");
+               logger.info("Routeur-" + this.getNomRouteur()+ "a été démarré sur le port: " + this.getPort());
+               logger.info("Routeur-" + this.getNomRouteur() + "utilise un routage de type LS (LINK-STATE)");
                
                calculPourLs();               
            }
@@ -167,7 +243,7 @@ public class Routeur implements Runnable {
                 System.out.println("IO: " + e.getMessage());
         }
         finally {
-                logger.info("Fin de l'initialisation du reseau");                
+                logger.info("Routeur-" + this.getNomRouteur() +"Fin du thread.");                
         }
     }  
      @Override
