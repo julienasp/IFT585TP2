@@ -28,6 +28,14 @@ public class StartPoint {
                 Routeur rE = new Routeur("E", 9004);
                 Routeur rF = new Routeur("F", 9005);
                 
+                //Ajouts des hôtes dans leur sous-réseau respectif
+                rA.ajouterHote(h1);
+                rF.ajouterHote(h2);
+                
+                //Ajouts des routes routeur --> hôtes
+                rA.ajouterHoteTableRoutage(h1.getPort(), h1);
+                rF.ajouterHoteTableRoutage(h2.getPort(), h2);
+                
                 //Initiation des arcs
                 Arc ab = new Arc("ab",rA,rB,5);
                 Arc ad = new Arc("ad",rA,rD,45);

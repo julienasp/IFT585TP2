@@ -114,8 +114,10 @@ public class Reseau  {
             //Création des threads pour tous les routeurs
             logger.info("Reseau: ouverture des threads pour les routeurs");
             for (Routeur routeur : listeRouteurs.values()) {
-                //routeur.setTypeRoutage(typeDeRoutage);
-                pool.execute(routeur);
+                routeur.setTypeRoutage(typeDeRoutage); //On ajoute le type de routage
+                routeur.setListeArcs(listeArcs); // On ajoute la topologie et les couts
+                routeur.setListeRouteurs(listeRouteurs); // On ajoute les routeurs (pour LS)
+                pool.execute(routeur); // On execute le thread
                 logger.info("Reseau: new runnable pour le routeur: " + routeur.getNomRouteur());
             } 
 
