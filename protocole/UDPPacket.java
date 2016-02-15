@@ -22,11 +22,16 @@ public class UDPPacket implements Serializable {
     private int destinationPort;		// port du destinataire
     private InetAddress sourceAdr; 		// adresse de l'émetteur
     private int sourcePort;                     // port source du paquet
+    private InetAddress destinationGatewayAdr;  // adresse de la passerelle destinataire du message
+    private int destinationGatewayPort;         // port du routeur de l'hôte source
+    
+    
     
 
     /*************************************************************/
     /***BELOW WE CAN FIND ALL CONSTRUCTORS FOR AN UDPPACKET*******/
     /*************************************************************/
+    
     
     public UDPPacket(int type, int destinationPort, int sourcePort) {
         this.type = type;
@@ -35,6 +40,20 @@ public class UDPPacket implements Serializable {
         try {
             this.sourceAdr = InetAddress.getLocalHost();
             this.destination = InetAddress.getLocalHost();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(UDPPacket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public UDPPacket(int type, int destinationGatewayPort, int destinationPort, int sourcePort) {
+        this.type = type;
+        this.destinationPort = destinationPort;
+        this.sourcePort = sourcePort;
+        this.destinationGatewayPort = destinationGatewayPort;
+        try {
+            this.sourceAdr = InetAddress.getLocalHost();
+            this.destination = InetAddress.getLocalHost();
+            this.destinationGatewayAdr = InetAddress.getLocalHost();
         } catch (UnknownHostException ex) {
             Logger.getLogger(UDPPacket.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -80,6 +99,24 @@ public class UDPPacket implements Serializable {
     public void setSourcePort(int sourcePort) {
         this.sourcePort = sourcePort;
     }
+
+    public InetAddress getDestinationGatewayAdr() {
+        return destinationGatewayAdr;
+    }
+
+    public void setDestinationGatewayAdr(InetAddress destinationGatewayAdr) {
+        this.destinationGatewayAdr = destinationGatewayAdr;
+    }
+
+    public int getDestinationGatewayPort() {
+        return destinationGatewayPort;
+    }
+
+    public void setDestinationGatewayPort(int destinationGatewayPort) {
+        this.destinationGatewayPort = destinationGatewayPort;
+    }
+    
+    
 
  
     /**************************************************/

@@ -103,8 +103,8 @@ public class StartPoint {
                         logger.info("StartPoint:(server) Execution de l'envoi des messages des hôtes"); 
                         h1.start(); // Pour la reception de message
                         h2.start(); // Pour la reception de message
-                        h1.envoyerMessage("h1 to h2: Hello beautiful world!",h2.getPort());
-                        h2.envoyerMessage("h2 to h1: Hello beautiful Host!",h1.getPort());
+                        h1.envoyerMessage("h1 to h2: Hello beautiful world!",rF.getPort(),h2.getPort());
+                        h2.envoyerMessage("h2 to h1: Hello beautiful Host!",rA.getPort(),h1.getPort());
                     }
                   }, 30000);
                 

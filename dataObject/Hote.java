@@ -66,9 +66,9 @@ public class Hote implements Runnable{
     /**************************************/
     /********   UTILITY METHODS  **********/
     /**************************************/ 
-    private UDPPacket buildPacket(int destinationPort,byte[] data) {
+    private UDPPacket buildPacket(int gatewayDestinationPort, int hoteDestinationPort, byte[] data) {
          logger.info("Hote-" + nomHote + ":  creation du paquet pour le message.");
-         UDPPacket packet = new UDPPacket(UDPPacket.FOWARD,destinationPort, port);         
+         UDPPacket packet = new UDPPacket(UDPPacket.FOWARD,gatewayDestinationPort,hoteDestinationPort, port);         
          packet.setData(data);                
          logger.debug(packet.toString());
          return packet;
@@ -95,9 +95,9 @@ public class Hote implements Runnable{
     /**************************************/
     /*************   METHODS  *************/
     /**************************************/
-    public void envoyerMessage(String message, int destinationPort){
+    public void envoyerMessage(String message, int gatewayDestinationPort,int hoteDestinationPort){
         logger.info("Hote-" + nomHote + ": envoyerMessage executed");        
-        UDPPacket monMessage = buildPacket(destinationPort,message.getBytes());
+        UDPPacket monMessage = buildPacket(gatewayDestinationPort,hoteDestinationPort,message.getBytes());
         sendPacket(monMessage);
     }
     
