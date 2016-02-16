@@ -22,6 +22,17 @@ public class Routeur implements Runnable {
 
     //Private attribut for logging purposes
     private static final Logger logger = Logger.getLogger(Routeur.class);
+    
+    public Routeur(Routeur r) {
+        this.nomRouteur = r.getNomRouteur();
+        this.port = r.getPort();
+        this.typeRoutage = r.getTypeRoutage();
+        this.indiceCoutLS = r.getIndiceCoutLS();
+        this.predecesseurRouteurLS = r.getPredecesseurRouteurLS();
+    }
+    
+    
+    
     public Routeur(String nomRouteur, int port) {
         this.nomRouteur = nomRouteur;
         this.port = port;
@@ -146,13 +157,13 @@ public class Routeur implements Runnable {
        tableRoutageHote.put(portDestitation, unHote);
     }
     
-    public void retirerHoteTableRoutage(int portDestitation) {
+    public synchronized void retirerHoteTableRoutage(int portDestitation) {
        tableRoutageHote.remove(portDestitation);
     }
     
     
     //Permet de trouver le cout d'un arc qui relie deux routeurs
-    private int trouverCoutPour(String routeurA, String routeurB){
+    private synchronized int trouverCoutPour(String routeurA, String routeurB){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): trouve le côut pour l'arc qui relie " + routeurA + " et " + routeurB);
         for (Arc value : listeArcs.values()) {
             if(( value.getRouteurA().getNomRouteur().equals(routeurA) && value.getRouteurB().getNomRouteur().equals(routeurB) ) || ( value.getRouteurA().getNomRouteur().equals(routeurB) && value.getRouteurB().getNomRouteur().equals(routeurA) )){
@@ -166,7 +177,7 @@ public class Routeur implements Runnable {
     
     
     //Permet de trouver tous les voisins d'un routeur
-    private Hashtable<String,Routeur> trouverVoisin(String routeurSource){
+    private synchronized Hashtable<String,Routeur> trouverVoisin(String routeurSource){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisin():Permet de trouver les voisins d'un routeur source: ");
         
         Hashtable<String,Routeur> routeurVoisin = new Hashtable<String,Routeur>();
@@ -184,7 +195,7 @@ public class Routeur implements Runnable {
     
     
     //Permet de  trouver tous les voisisn d'un routeur qui ne sont pas dans la liste N.
-    private Hashtable<String,Routeur> trouverVoisinNonN(String routeurSource){
+    private synchronized Hashtable<String,Routeur> trouverVoisinNonN(String routeurSource){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): Permet de trouver les voisins du routeur: " + routeurSource);
         
         Hashtable<String,Routeur> routeurVoisin = new Hashtable<String,Routeur>();
@@ -203,7 +214,7 @@ public class Routeur implements Runnable {
     
     
     //Permet de trouver le routeur qui a le côute D(w) le plus bas.
-    private String trouverPlusPetitDW(Hashtable<String, Routeur> listeW){
+    private synchronized String trouverPlusPetitDW(Hashtable<String, Routeur> listeW){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): on trouve le w le avec le plus petit D(w)");
         int indice = 100000;
         String nom = "";        
@@ -221,7 +232,7 @@ public class Routeur implements Runnable {
     
     
     //Permet de déduire la table de routage Ls suite au calcul LS.
-    private void calculerTableRoutageLS(Hashtable<String, Routeur> cloneListe){
+    private synchronized void calculerTableRoutageLS(Hashtable<String, Routeur> cloneListe){
         logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Suite à l'algorithme utilisé en calculPourLs(), nous déduisons la table de routage LS.");
         
         for (Routeur routeurCourant : cloneListe.values()) {
@@ -239,7 +250,7 @@ public class Routeur implements Runnable {
     }
     
     //Fonction récursive qui nous permet de trouver le routeur à qui nous devons transferer
-    private Routeur trouverFoward(Hashtable<String, Routeur> cloneListe, Routeur r){
+    private synchronized Routeur trouverFoward(Hashtable<String, Routeur> cloneListe, Routeur r){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverFoward(): Nous cherchons le prédécesseur de: " + r.getNomRouteur());
 
         if(r.getPredecesseurRouteurLS().equals(this.getNomRouteur()) ) return r;        
@@ -248,7 +259,7 @@ public class Routeur implements Runnable {
     
     
     //Permet de trouver le chemin optimale pour l'instance du routeur.
-    private void calculPourLs(){
+    private synchronized void calculPourLs(){
         logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): Début de l'algorithme pour trouver les chemins les plus courts");
  
         //Ajout du chemin le plus court pour le routeur source
@@ -263,7 +274,10 @@ public class Routeur implements Runnable {
         logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): initialisation des côuts D(v) pour le routeur: " + this.getNomRouteur());
         
         //On évite que tous les threads modifie la même liste.
-        Hashtable<String, Routeur> cloneListe = new Hashtable<String, Routeur>(listeRouteurs) ;  
+        Hashtable<String, Routeur> cloneListe = new Hashtable<String, Routeur>();
+        for (Routeur routeurCourant : listeRouteurs.values()) {            
+                cloneListe.put(routeurCourant.getNomRouteur(), new Routeur(routeurCourant));
+        }
         
         for (Routeur routeurCourant : cloneListe.values()) {
             if(routeurVoisin.containsKey(routeurCourant.getNomRouteur())){
