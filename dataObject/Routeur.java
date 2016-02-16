@@ -224,10 +224,14 @@ public class Routeur implements Runnable {
     private void calculerTableRoutageLS(Hashtable<String, Routeur> cloneListe){
         logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Suite à l'algorithme utilisé en calculPourLs(), nous déduisons la table de routage LS.");
         
-        for (Routeur routeurCourant : cloneListe.values()) {            
-             Routeur fowardRouteur = trouverFoward(cloneListe,routeurCourant);
-             ajouterRouteTableRoutageLS(routeurCourant.getPort(),fowardRouteur);
-             logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): pour se rendre à: " + routeurCourant.getNomRouteur() + " on foward vers: " + fowardRouteur.getNomRouteur());
+        for (Routeur routeurCourant : cloneListe.values()) {
+            if(!routeurCourant.getNomRouteur().equals(this.getNomRouteur())){ 
+                logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Début calcul pour la destination: " + routeurCourant.getNomRouteur());
+
+                Routeur fowardRouteur = trouverFoward(cloneListe,routeurCourant);
+                ajouterRouteTableRoutageLS(routeurCourant.getPort(),fowardRouteur);
+                logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): pour se rendre à: " + routeurCourant.getNomRouteur() + " on foward vers: " + fowardRouteur.getNomRouteur());
+            }
         } 
         
         logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): la table de routage a été généré.");
