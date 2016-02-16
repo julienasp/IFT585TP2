@@ -217,7 +217,9 @@ public class Routeur implements Runnable {
     private synchronized String trouverPlusPetitDW(Hashtable<String, Routeur> listeW){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): on trouve le w le avec le plus petit D(w)");
         int indice = 100000;
-        String nom = "";        
+        String nom = "";
+        //logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): intérieur:" + listeW.toString());
+
         for (Routeur routeurCourant : listeW.values()) {
             if(routeurCourant.getIndiceCoutLS() <= indice && N.containsKey(routeurCourant.getNomRouteur()) == false  )
             {
@@ -296,14 +298,22 @@ public class Routeur implements Runnable {
             //On trouve le routeur avec la podération la plus petite
             String w = trouverPlusPetitDW(cloneListe);
             Routeur rW = cloneListe.get(w);
-            
+            logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): initialise rW" + rW.getNomRouteur());
+
             //On ajoute le routeur dans notre liste de routeur ayant le chemin le plus optimale
-            N.put(w, cloneListe.get(w)); // On ajoute le routeur courant à la liste N
+            N.put(w, rW); // On ajoute le routeur courant à la liste N
             
             logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): N à été MaJ. le routeur: "+ rW.getNomRouteur() + " à comme prédécesseur: " + rW.getPredecesseurRouteurLS());
             
             //On récupere les voisins de w, qui ne sont pas déja dans N
             routeurVoisin = trouverVoisinNonN(w);
+            
+            //Corrige les pointeurs
+            for (Routeur r : routeurVoisin.values()) {
+                routeurVoisin.replace(r.getNomRouteur(), cloneListe.get(r.getNomRouteur()));
+            } 
+            
+            logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): recupere les voisins de w");
             
             //On récupere le routeur en lien avec w.
             
