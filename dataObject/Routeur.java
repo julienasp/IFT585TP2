@@ -233,9 +233,12 @@ public class Routeur implements Runnable {
             else{
                 routeurCourant.setIndiceCoutLS(1000000); //infini
             }
-        }        
+        } 
         
+        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): debut du do while"); 
         do{
+            
+
             //On trouve le routeur avec la podération la plus petite
             String w = trouverPlusPetitDW(cloneListe);
             Routeur rW = cloneListe.get(w);
@@ -246,7 +249,7 @@ public class Routeur implements Runnable {
             logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): N à été MaJ. le routeur: "+ rW.getNomRouteur() + " à comme prédécesseur: " + rW.getPredecesseurRouteurLS());
             
             //On récupere les voisins de w, qui ne sont pas déja dans N
-            routeurVoisin = trouverVoisinNonN(this.getNomRouteur());
+            routeurVoisin = trouverVoisinNonN(w);
             
             //On récupere le routeur en lien avec w.
             
@@ -283,7 +286,7 @@ public class Routeur implements Runnable {
                 System.out.println("IO: " + e.getMessage());
         }
         finally {
-                logger.info("Routeur-" + this.getNomRouteur() +"Fin du thread.");                
+                logger.info("Routeur-" + this.getNomRouteur() +" Fin du thread.");                
         }
     }  
      @Override
