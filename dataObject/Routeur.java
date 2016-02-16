@@ -149,6 +149,9 @@ public class Routeur implements Runnable {
     public void retirerHoteTableRoutage(int portDestitation) {
        tableRoutageHote.remove(portDestitation);
     }
+    
+    
+    //Permet de trouver le cout d'un arc qui relie deux routeurs
     private int trouverCoutPour(String routeurA, String routeurB){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): trouve le côut pour l'arc qui relie " + routeurA + " et " + routeurB);
         for (Arc value : listeArcs.values()) {
@@ -160,6 +163,9 @@ public class Routeur implements Runnable {
         logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): aucun arc trouvé entre " + routeurA + " et " + routeurB);
         return -1; // retourne -1 si l'arc n'existe pas
     }
+    
+    
+    //Permet de trouver tous les voisins d'un routeur
     private Hashtable<String,Routeur> trouverVoisin(String routeurSource){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisin():Permet de trouver les voisins d'un routeur source: ");
         
@@ -176,6 +182,8 @@ public class Routeur implements Runnable {
         return routeurVoisin;
     }
     
+    
+    //Permet de  trouver tous les voisisn d'un routeur qui ne sont pas dans la liste N.
     private Hashtable<String,Routeur> trouverVoisinNonN(String routeurSource){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): Permet de trouver les voisins du routeur: " + routeurSource);
         
@@ -193,6 +201,8 @@ public class Routeur implements Runnable {
         return routeurVoisin;
     }
     
+    
+    //Permet de trouver le routeur qui a le côute D(w) le plus bas.
     private String trouverPlusPetitDW(Hashtable<String, Routeur> listeW){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): on trouve le w le avec le plus petit D(w)");
         int indice = 100000;
@@ -208,8 +218,24 @@ public class Routeur implements Runnable {
 
         return nom;
     }
+    
+    
+    //Permet de déduire la table de routage Ls suite au calcul LS.
+    private void calculerTableRoutageLS(Hashtable<String, Routeur> cloneListe){
+        logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Suite à l'algorithme utilisé en calculPourLs(), nous déduisons la table de routage LS.");
+        
+         for (Routeur routeurCourant : cloneListe.values()) {
+            
+            ajouterRouteTableRoutageLS(routeurCourant.getPort(),routeurCourant);
+
+        } 
+        
+    }
+    
+    
+    //Permet de trouver le chemin optimale pour l'instance du routeur.
     private void calculPourLs(){
-        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): Début de l'algorithme pour trouver les chemins les plus courts pour le routeur source: " + this.getNomRouteur());
+        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): Début de l'algorithme pour trouver les chemins les plus courts");
  
         //Ajout du chemin le plus court pour le routeur source
         ajouterRouteTableRoutageLS(this.getPort(),this);
@@ -267,8 +293,8 @@ public class Routeur implements Runnable {
     logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): calcul terminé.");
     logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): création de la table de routage avec les données obtenues.");
         
-        
-        
+     ajouterRouteTableRoutageLS(this.getPort(),this);   
+     calculerTableRoutageLS(cloneListe);   
         
     }
      public void start() {		
