@@ -281,6 +281,7 @@ public class Routeur implements Runnable {
                 cloneListe.put(routeurCourant.getNomRouteur(), new Routeur(routeurCourant));
         }
         
+        //STEP 1, on met tous à infini et on met les couts pour nos voisins
         for (Routeur routeurCourant : cloneListe.values()) {
             if(routeurVoisin.containsKey(routeurCourant.getNomRouteur())){
                 routeurCourant.setIndiceCoutLS(trouverCoutPour(this.getNomRouteur(),routeurCourant.getNomRouteur()));
@@ -291,6 +292,7 @@ public class Routeur implements Runnable {
             }
         } 
         
+        //STEP 2,
         logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): debut du do while"); 
         do{
             
@@ -298,7 +300,6 @@ public class Routeur implements Runnable {
             //On trouve le routeur avec la podération la plus petite
             String w = trouverPlusPetitDW(cloneListe);
             Routeur rW = cloneListe.get(w);
-            logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): initialise rW" + rW.getNomRouteur());
 
             //On ajoute le routeur dans notre liste de routeur ayant le chemin le plus optimale
             N.put(w, rW); // On ajoute le routeur courant à la liste N
@@ -331,6 +332,7 @@ public class Routeur implements Runnable {
         logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): calcul terminé.");
         logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): création de la table de routage avec les données obtenues.");
 
+        //STEP 3
         calculerTableRoutageLS(cloneListe); 
 
      
