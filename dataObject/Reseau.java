@@ -109,7 +109,7 @@ public class Reseau  {
         logger.info("Reseau: Le reseau démarre sont initialisation.");
         try {
             //On creer un pool de thread afin de simplifier la fermeture
-            pool = Executors.newFixedThreadPool(25);
+            pool = Executors.newFixedThreadPool(1);
             
             //Création des threads pour tous les routeurs
             logger.info("Reseau: ouverture des threads pour les routeurs");

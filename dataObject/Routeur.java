@@ -13,6 +13,7 @@ public class Routeur implements Runnable {
     private int typeRoutage;
     private int indiceCoutLS;
     private String predecesseurRouteurLS;
+    private Hashtable<String, Routeur> N = new Hashtable<String, Routeur>();
     private Hashtable<String, Routeur> listeRouteurs = new Hashtable<String, Routeur>();
     private Hashtable<String, Arc> listeArcs = new Hashtable<String,Arc>();
     private Hashtable<String, Hote> listeHotes = new Hashtable<String,Hote>();
@@ -149,16 +150,18 @@ public class Routeur implements Runnable {
        tableRoutageHote.remove(portDestitation);
     }
     private int trouverCoutPour(String routeurA, String routeurB){
-        logger.info("Routeur: trouverCoutPour(): ");
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): trouve le côut pour l'arc qui relie " + routeurA + " et " + routeurB);
         for (Arc value : listeArcs.values()) {
             if(( value.getRouteurA().getNomRouteur().equals(routeurA) && value.getRouteurB().getNomRouteur().equals(routeurB) ) || ( value.getRouteurA().getNomRouteur().equals(routeurB) && value.getRouteurB().getNomRouteur().equals(routeurA) )){
+                logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): Le cout pour l'arc qui relie " + routeurA + " et " + routeurB + " est de: " + value.getCout());
                 return value.getCout();                
             }
-        }  
+        }
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): aucun arc trouvé entre " + routeurA + " et " + routeurB);
         return -1; // retourne -1 si l'arc n'existe pas
     }
     private Hashtable<String,Routeur> trouverVoisin(String routeurSource){
-        logger.info("Routeur: trouverVoisin():Permet de trouver les voisins d'un routeur source: ");
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisin():Permet de trouver les voisins d'un routeur source: ");
         
         Hashtable<String,Routeur> routeurVoisin = new Hashtable<String,Routeur>();
         
@@ -167,9 +170,26 @@ public class Routeur implements Runnable {
                 routeurVoisin.put(value.getRouteurB().getNomRouteur(),value.getRouteurB());
             }
             if(( value.getRouteurB().getNomRouteur().equals(routeurSource) )){
-                routeurVoisin.put(value.getRouteurB().getNomRouteur(),value.getRouteurA());
+                routeurVoisin.put(value.getRouteurA().getNomRouteur(),value.getRouteurA());
             }
         }
+        return routeurVoisin;
+    }
+    
+    private Hashtable<String,Routeur> trouverVoisinNonN(String routeurSource){
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): Permet de trouver les voisins du routeur: " + routeurSource);
+        
+        Hashtable<String,Routeur> routeurVoisin = new Hashtable<String,Routeur>();
+        
+        for (Arc value : listeArcs.values()) {
+            if(( value.getRouteurA().getNomRouteur().equals(routeurSource) && N.containsKey(value.getRouteurB().getNomRouteur()) == false )){
+                routeurVoisin.put(value.getRouteurB().getNomRouteur(),value.getRouteurB());
+            }
+            if(( value.getRouteurB().getNomRouteur().equals(routeurSource) && N.containsKey(value.getRouteurA().getNomRouteur()) == false )){
+                routeurVoisin.put(value.getRouteurA().getNomRouteur(),value.getRouteurA());
+            }
+        }
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): les voisins de sont: " + routeurVoisin.toString());
         return routeurVoisin;
     }
     
@@ -178,20 +198,19 @@ public class Routeur implements Runnable {
         int indice = 100000;
         String nom = "";        
         for (Routeur routeurCourant : listeW.values()) {
-            if(routeurCourant.getIndiceCoutLS() <= indice)
+            if(routeurCourant.getIndiceCoutLS() <= indice && N.containsKey(routeurCourant.getNomRouteur()) == false  )
             {
                 indice = routeurCourant.getIndiceCoutLS();
                 nom = routeurCourant.getNomRouteur();
             }
-        }        
+        }
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): le plus petit est: " + nom);
+
         return nom;
     }
     private void calculPourLs(){
         logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): Début de l'algorithme pour trouver les chemins les plus courts pour le routeur source: " + this.getNomRouteur());
-
-         //Sous-ensemble de routeur ou le chemin le plus court est connu
-        Hashtable<String, Routeur> N = new Hashtable<String, Routeur>();
-        
+ 
         //Ajout du chemin le plus court pour le routeur source
         ajouterRouteTableRoutageLS(this.getPort(),this);
         
@@ -204,9 +223,7 @@ public class Routeur implements Runnable {
         logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): initialisation des côuts D(v) pour le routeur: " + this.getNomRouteur());
         
         //On évite que tous les threads modifie la même liste.
-        Hashtable<String, Routeur> cloneListe = new Hashtable<String, Routeur>(listeRouteurs) ;
-        
-        cloneListe.remove(this.getNomRouteur());
+        Hashtable<String, Routeur> cloneListe = new Hashtable<String, Routeur>(listeRouteurs) ;  
         
         for (Routeur routeurCourant : cloneListe.values()) {
             if(routeurVoisin.containsKey(routeurCourant.getNomRouteur())){
@@ -216,13 +233,36 @@ public class Routeur implements Runnable {
             else{
                 routeurCourant.setIndiceCoutLS(1000000); //infini
             }
-        } 
+        }        
         
         do{
+            //On trouve le routeur avec la podération la plus petite
             String w = trouverPlusPetitDW(cloneListe);
-        }while(true);
+            Routeur rW = cloneListe.get(w);
+            
+            //On ajoute le routeur dans notre liste de routeur ayant le chemin le plus optimale
+            N.put(w, cloneListe.get(w)); // On ajoute le routeur courant à la liste N
+            
+            logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): N à été MaJ. le routeur: "+ rW.getNomRouteur() + " à comme prédécesseur: " + rW.getPredecesseurRouteurLS());
+            
+            //On récupere les voisins de w, qui ne sont pas déja dans N
+            routeurVoisin = trouverVoisinNonN(this.getNomRouteur());
+            
+            //On récupere le routeur en lien avec w.
+            
+            for (Routeur routeurCourant : routeurVoisin.values()) {
+                //On vérifie si l'indice de cout d(v) est plus petit que l'addition de d(w) + c(w,v)
+                if(routeurCourant.getIndiceCoutLS() > ( rW.getIndiceCoutLS() + trouverCoutPour(w,routeurCourant.getNomRouteur()) ) ){
+                    //l'indice du chemin via w, est inférieur alors on met à jour
+                    routeurCourant.setIndiceCoutLS(rW.getIndiceCoutLS() + trouverCoutPour(w,routeurCourant.getNomRouteur()));
+                    routeurCourant.setPredecesseurRouteurLS(w);
+                }                
+            } 
+        logger.info("Routeur-" + this.getNomRouteur() +": N ressemble à: " + N.toString());    
+        }while(N.size() != cloneListe.size());
         
-        
+    logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): calcul terminé.");
+    logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): création de la table de routage avec les données obtenues.");
         
         
         
@@ -233,8 +273,8 @@ public class Routeur implements Runnable {
         try {            
            if(typeRoutage == Reseau.LSROUTING){
                //Génération des meilleurs chemins avec LS
-               logger.info("Routeur-" + this.getNomRouteur()+ "a été démarré sur le port: " + this.getPort());
-               logger.info("Routeur-" + this.getNomRouteur() + "utilise un routage de type LS (LINK-STATE)");
+               logger.info("Routeur-" + this.getNomRouteur()+ " a été démarré sur le port: " + this.getPort());
+               logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type LS (LINK-STATE)");
                
                calculPourLs();               
            }
