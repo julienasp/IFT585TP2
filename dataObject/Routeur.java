@@ -230,6 +230,8 @@ public class Routeur implements Runnable {
              logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): pour se rendre à: " + routeurCourant.getNomRouteur() + " on foward vers: " + fowardRouteur.getNomRouteur());
         } 
         
+        logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): la table de routage a été généré.");
+        logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): table de routage: " + this.getTableRoutageLS().toString());
     }
     
     //Fonction récursive qui nous permet de trouver le routeur à qui nous devons transferer
@@ -298,11 +300,12 @@ public class Routeur implements Runnable {
         logger.info("Routeur-" + this.getNomRouteur() +": N ressemble à: " + N.toString());    
         }while(N.size() != cloneListe.size());
         
-    logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): calcul terminé.");
-    logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): création de la table de routage avec les données obtenues.");
-        
-     ajouterRouteTableRoutageLS(this.getPort(),this);   
-     calculerTableRoutageLS(cloneListe);   
+        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): calcul terminé.");
+        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): création de la table de routage avec les données obtenues.");
+
+        calculerTableRoutageLS(cloneListe); 
+
+     
         
     }
      public void start() {		
