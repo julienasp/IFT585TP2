@@ -224,12 +224,20 @@ public class Routeur implements Runnable {
     private void calculerTableRoutageLS(Hashtable<String, Routeur> cloneListe){
         logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Suite à l'algorithme utilisé en calculPourLs(), nous déduisons la table de routage LS.");
         
-         for (Routeur routeurCourant : cloneListe.values()) {
-            
-            ajouterRouteTableRoutageLS(routeurCourant.getPort(),routeurCourant);
-
+        for (Routeur routeurCourant : cloneListe.values()) {            
+             Routeur fowardRouteur = trouverFoward(cloneListe,routeurCourant);
+             ajouterRouteTableRoutageLS(routeurCourant.getPort(),fowardRouteur);
+             logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): pour se rendre à: " + routeurCourant.getNomRouteur() + " on foward vers: " + fowardRouteur.getNomRouteur());
         } 
         
+    }
+    
+    //Fonction récursive qui nous permet de trouver le routeur à qui nous devons transferer
+    private Routeur trouverFoward(Hashtable<String, Routeur> cloneListe, Routeur r){
+        logger.info("Routeur-" + this.getNomRouteur() +": trouverFoward(): Nous cherchons le prédécesseur de: " + r.getNomRouteur());
+
+        if(r.getPredecesseurRouteurLS().equals(this.getNomRouteur()) ) return r;        
+        else return trouverFoward(cloneListe,cloneListe.get(r.getPredecesseurRouteurLS()));
     }
     
     
