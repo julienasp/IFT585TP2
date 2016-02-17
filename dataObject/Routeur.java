@@ -14,6 +14,10 @@ import protocole.UDPPacket;
 import utils.Marshallizer;
 
 public class Routeur implements Runnable {
+    
+    /**************************************/
+    /********* PRIVATE ATTRIBUTS **********/
+    /**************************************/    
     private String nomRouteur;
     private DatagramSocket routeurSocket = null;
     private DatagramPacket packetReceive;
@@ -31,6 +35,10 @@ public class Routeur implements Runnable {
     //Private attribut for logging purposes
     private static final Logger logger = Logger.getLogger(Routeur.class);
     
+    
+    /**************************************/
+    /************ CONSTRUCTORS *************/
+    /**************************************/
     public Routeur(Routeur r) {
         this.nomRouteur = r.getNomRouteur();
         this.port = r.getPort();
@@ -39,13 +47,15 @@ public class Routeur implements Runnable {
         this.predecesseurRouteurLS = r.getPredecesseurRouteurLS();
     }
     
-    
-    
     public Routeur(String nomRouteur, int port) {
         this.nomRouteur = nomRouteur;
         this.port = port;
     }
 
+    
+    /**************************************/
+    /********* GETTER AND SETTER **********/
+    /**************************************/
     public Hashtable<String, Arc> getListeArcs() {
         return listeArcs;
     }
@@ -124,9 +134,7 @@ public class Routeur implements Runnable {
 
     public void setN(Hashtable<String, Routeur> N) {
         this.N = N;
-    }
-
-    
+    }   
     
     public int getPort() {
         return port;
@@ -142,9 +150,7 @@ public class Routeur implements Runnable {
 
     public void setTypeRoutage(int typeRoutage) {
         this.typeRoutage = typeRoutage;
-    }
-    
-    
+    }   
 
     public String getNomRouteur() {
         return nomRouteur;
@@ -154,18 +160,22 @@ public class Routeur implements Runnable {
         this.nomRouteur = nomRouteur;
     }
     
-     public void ajouterArc(Arc unArc) {
+    
+    /**************************************/
+    /********   UTILITY METHODS  **********/
+    /**************************************/
+    public void ajouterArc(Arc unArc) {
        listeArcs.put(unArc.getNomArc(), unArc);
     }
     
-     public void retirerArc(String nomArc) {
+    public void retirerArc(String nomArc) {
        listeArcs.remove(nomArc);
     }
-     public void ajouterHote(Hote unHote) {
+    public void ajouterHote(Hote unHote) {
        listeHotes.put(unHote.getNomHote(), unHote);
     }
     
-     public void retirerHote(String nomHote) {
+    public void retirerHote(String nomHote) {
        listeHotes.remove(nomHote);
     }
     
@@ -194,6 +204,9 @@ public class Routeur implements Runnable {
     }
     
     
+    /**************************************/
+    /*************   METHODS  *************/
+    /**************************************/
     //Permet de trouver le cout d'un arc qui relie deux routeurs
     private synchronized int trouverCoutPour(String routeurA, String routeurB){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): trouve le côut pour l'arc qui relie " + routeurA + " et " + routeurB);
@@ -283,6 +296,7 @@ public class Routeur implements Runnable {
         logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): table de routage: " + this.getTableRoutageLS().toString());
     }
     
+    
     //Fonction récursive qui nous permet de trouver le routeur à qui nous devons transferer
     private synchronized Routeur trouverFoward(Hashtable<String, Routeur> cloneListe, Routeur r){
         logger.info("Routeur-" + this.getNomRouteur() +": trouverFoward(): Nous cherchons le prédécesseur de: " + r.getNomRouteur());
@@ -366,11 +380,10 @@ public class Routeur implements Runnable {
 
         //STEP 3
         calculerTableRoutageLS(cloneListe); 
-
-     
-        
     }
     
+    
+    //Permet de foward un paquet vers la destination reçu en param
     private void sendPacket(UDPPacket udpPacket, int destinationPort) {
         try {
                 logger.info("Routeur-" + this.getNomRouteur() + ": sendPacket executed");
@@ -387,7 +400,12 @@ public class Routeur implements Runnable {
                 System.out.println("Routeur-" + this.getNomRouteur() + " IO: " + e.getMessage());
         }
     }
-     public void start() {		
+    
+    
+    /**************************************/
+    /*************   THREAD   *************/
+    /**************************************/
+    public void start() {		
         
         try {            
            if(typeRoutage == Reseau.LSROUTING){
@@ -447,7 +465,8 @@ public class Routeur implements Runnable {
         finally {
                 logger.info("Routeur-" + this.getNomRouteur() +" Fin du thread.");                
         }
-    }  
+    }
+    
      @Override
     public void run() {
             start();	
