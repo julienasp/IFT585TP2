@@ -119,7 +119,12 @@ public class Reseau  {
                 routeur.setListeRouteurs(listeRouteurs); // On ajoute les routeurs (pour LS)
                 pool.execute(routeur); // On execute le thread
                 logger.info("Reseau: new runnable pour le routeur: " + routeur.getNomRouteur());
-            } 
+            }
+            
+            for (Hote hote : listeHotes.values()) {                
+                pool.execute(hote); // On execute le thread 
+            }           
+            
 
         } catch (Exception e) {
                 System.out.println("IO: " + e.getMessage());

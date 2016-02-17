@@ -2,23 +2,24 @@ import dataObject.*;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 
 public class StartPoint {	
     //Private attribut for logging purposes
-    private static final Logger logger = Logger.getLogger(StartPoint.class);
+    private static final Logger logger = Logger.getLogger(StartPoint.class);    
 	public static void main(String[] args) {
             
                 /**************************************************/
                 /***********  CONFIGURATION DU RESEAU *************/
-                /**************************************************/
-                
+                /**************************************************/                
                 Reseau monReseau = new Reseau();
                 
                 //Initiation des hotes
                 Hote h1 = new Hote("h1",8000,9000);                
-                Hote h2 = new Hote("h2",8001,9006);
+                Hote h2 = new Hote("h2",8001,9005);
                 
                 //Initiation des routeurs
                 Routeur rA = new Routeur("A", 9000);
@@ -103,18 +104,19 @@ public class StartPoint {
                         break;
                 }
 		
+                
+                
                 //Timer pour l'attente du routage
-                Timer routingWaitTimer = new Timer(); //Timer pour les timeouts
-                routingWaitTimer.schedule(new TimerTask() {
+                Timer messageWaitTimer = new Timer(); //Timer pour les timeouts
+                messageWaitTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        logger.info("StartPoint:(server) Execution de l'envoi des messages des hôtes"); 
-                        h1.start(); // Pour la reception de message
-                        h2.start(); // Pour la reception de message
+                        logger.info("StartPoint:(server) Execution de l'envoi des messages des hôtes");                        
                         h1.envoyerMessage("h1 to h2: Hello beautiful world!",rF.getPort(),h2.getPort());
                         h2.envoyerMessage("h2 to h1: Hello beautiful Host!",rA.getPort(),h1.getPort());
                     }
-                  }, 30000);
+                  }, 30000);               
+               
                 
                 //Timer pour terminer l'execution
                 Timer reseauEndingTimer = new Timer(); //Timer pour les timeouts
