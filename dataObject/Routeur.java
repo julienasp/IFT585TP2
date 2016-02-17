@@ -407,22 +407,30 @@ public class Routeur implements Runnable {
     /**************************************/
     public void start() {		
         
-        try {            
+        try {
+            logger.info("Routeur-" + this.getNomRouteur()+ " a été démarré sur le port: " + this.getPort());
+            routeurSocket = new DatagramSocket(this.getPort()); // port pour l'envoi et l'écoute                
+            
+            byte[] buffer = new byte[1500];
+                
+            packetReceive = new DatagramPacket(buffer, buffer.length); 
+            
            if(typeRoutage == Reseau.LSROUTING){
                //Génération des meilleurs chemins avec LS               
                logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type LS (LINK-STATE)");
                
                calculPourLs();               
            }
-           
-            logger.info("Routeur-" + this.getNomRouteur()+ " a été démarré sur le port: " + this.getPort());
-            routeurSocket = new DatagramSocket(this.getPort()); // port pour l'envoi et l'écoute
-                
+           if(typeRoutage == Reseau.DVROUTING){
+               //Initiation des tables de routage pour DV
+               logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type DV (DISTANCE VECTOR)");
+               /***************************************/ 
+               /*******  TON CODE POUR LE INIT   ******/ 
+               /***************************************/ 
+                       
+           }             
             
-            byte[] buffer = new byte[1500];
-                
-            packetReceive = new DatagramPacket(buffer, buffer.length);               
-                
+           //Début de la boucle pour recevoir des paquets
             do  {                   
                     
                     logger.info("Routeur-" + this.getNomRouteur() + ": waiting for a packet");
@@ -431,7 +439,9 @@ public class Routeur implements Runnable {
                     
                     UDPPacket packet = (UDPPacket) Marshallizer.unmarshall(packetReceive);
                     
+                    //Paquet de type FOWARD
                     if(packet.getType() == UDPPacket.FOWARD){
+                        
                         logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type foward");
                         logger.info("Routeur-" + this.getNomRouteur() + ": on regarde si la destination est dans notre table d'hôte");
                         
@@ -444,9 +454,15 @@ public class Routeur implements Runnable {
                         }
                         else
                         {
-                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD.");                            
+                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD."); 
+                            /********************************************************************************************************************************/ 
+                            /*******  IL VA FALLOIR MODIFIER LA VALEUR ELSE POUR portDestination et destinataire, afin d'utiliser la tableRoutageDV   *******/ 
+                            /********************************************************************************************************************************/
                             int portDestination = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getPort() : null;
                             String destinataire = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getNomRouteur() : null;
+                            /********************************************************************************************************************************/ 
+                            /*******  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   *******/ 
+                            /********************************************************************************************************************************/
                             sendPacket(packet,portDestination);
                             logger.info("Routeur-" + this.getNomRouteur() + ": le paquet à été transmis à: " + destinataire);
                             
@@ -454,8 +470,12 @@ public class Routeur implements Runnable {
                         
                         logger.info("Routeur-" + this.getNomRouteur() + " le packet reçu à été bien été transmis.");   
                     }
-                    else {
+                    //Paquet de type UPDATE pour un DVHandler
+                    if(packet.getType() == UDPPacket.UPDATE){
                         //Commencer un thread de DVHandler
+                        /*****************************************************/ 
+                        /*******  TON CODE POUR LE THREAD DV HANDLER   *******/ 
+                        /*****************************************************/
                     }
             }while (true);
 
