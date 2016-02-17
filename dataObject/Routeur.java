@@ -4,11 +4,19 @@
  */
 package dataObject;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Hashtable;
 import org.apache.log4j.Logger;
+import protocole.UDPPacket;
+import utils.Marshallizer;
 
 public class Routeur implements Runnable {
     private String nomRouteur;
+    private DatagramSocket routeurSocket = null;
+    private DatagramPacket packetReceive;
     private int port;
     private int typeRoutage;
     private int indiceCoutLS;
@@ -92,6 +100,30 @@ public class Routeur implements Runnable {
 
     public void setPredecesseurRouteurLS(String predecesseurRouteurLS) {
         this.predecesseurRouteurLS = predecesseurRouteurLS;
+    }
+
+    public DatagramSocket getRouteurSocket() {
+        return routeurSocket;
+    }
+
+    public void setRouteurSocket(DatagramSocket routeurSocket) {
+        this.routeurSocket = routeurSocket;
+    }
+
+    public DatagramPacket getPacketReceive() {
+        return packetReceive;
+    }
+
+    public void setPacketReceive(DatagramPacket packetReceive) {
+        this.packetReceive = packetReceive;
+    }
+
+    public Hashtable<String, Routeur> getN() {
+        return N;
+    }
+
+    public void setN(Hashtable<String, Routeur> N) {
+        this.N = N;
     }
 
     
@@ -338,16 +370,76 @@ public class Routeur implements Runnable {
      
         
     }
+    
+    private void sendPacket(UDPPacket udpPacket, int destinationPort) {
+        try {
+                logger.info("Routeur-" + this.getNomRouteur() + ": sendPacket executed");
+                logger.info("Routeur-" + this.getNomRouteur() + ": sendPacket : " + udpPacket.toString());                
+                byte[] packetData = Marshallizer.marshallize(udpPacket);
+                DatagramPacket datagram = new DatagramPacket(packetData,
+                                packetData.length, 
+                                udpPacket.getDestination(),
+                                destinationPort); // port de la passerelle par default
+                routeurSocket.send(datagram); // émission non-bloquante
+        } catch (SocketException e) {
+                System.out.println("Routeur-" + this.getNomRouteur() + " Socket: " + e.getMessage());
+        } catch (IOException e) {
+                System.out.println("Routeur-" + this.getNomRouteur() + " IO: " + e.getMessage());
+        }
+    }
      public void start() {		
         
         try {            
            if(typeRoutage == Reseau.LSROUTING){
-               //Génération des meilleurs chemins avec LS
-               logger.info("Routeur-" + this.getNomRouteur()+ " a été démarré sur le port: " + this.getPort());
+               //Génération des meilleurs chemins avec LS               
                logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type LS (LINK-STATE)");
                
                calculPourLs();               
            }
+           
+            logger.info("Routeur-" + this.getNomRouteur()+ " a été démarré sur le port: " + this.getPort());
+            routeurSocket = new DatagramSocket(this.getPort()); // port pour l'envoi et l'écoute
+                
+            
+            byte[] buffer = new byte[1500];
+                
+            packetReceive = new DatagramPacket(buffer, buffer.length);               
+                
+            do  {                   
+                    
+                    logger.info("Routeur-" + this.getNomRouteur() + ": waiting for a packet");
+                    routeurSocket.receive(packetReceive); // reception bloquante
+                    logger.info("Routeur-" + this.getNomRouteur() + ": a packet was receive");                   
+                    
+                    UDPPacket packet = (UDPPacket) Marshallizer.unmarshall(packetReceive);
+                    
+                    if(packet.getType() == UDPPacket.FOWARD){
+                        logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type foward");
+                        logger.info("Routeur-" + this.getNomRouteur() + ": on regarde si la destination est dans notre table d'hôte");
+                        
+                        if(tableRoutageHote.containsKey(packet.getDestinationPort())){
+                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination est dans notre table d'hôte");
+                            
+                            sendPacket(packet,packet.getDestinationPort());
+                            logger.info("Routeur-" + this.getNomRouteur() + ": le paquet à été remis à l'hôte: " + tableRoutageHote.get(packet.getDestinationPort()));
+
+                        }
+                        else
+                        {
+                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD.");                            
+                            int portDestination = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getPort() : null;
+                            String destinataire = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getNomRouteur() : null;
+                            sendPacket(packet,portDestination);
+                            logger.info("Routeur-" + this.getNomRouteur() + ": le paquet à été transmis à: " + destinataire);
+                            
+                        }                        
+                        
+                        logger.info("Routeur-" + this.getNomRouteur() + " le packet reçu à été bien été transmis.");   
+                    }
+                    else {
+                        //Commencer un thread de DVHandler
+                    }
+            }while (true);
 
         } catch (Exception e) {
                 System.out.println("IO: " + e.getMessage());
