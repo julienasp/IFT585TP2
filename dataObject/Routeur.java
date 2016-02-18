@@ -4,472 +4,334 @@
  */
 package dataObject;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.util.Hashtable;
 import org.apache.log4j.Logger;
+
 import protocole.UDPPacket;
 import utils.Marshallizer;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
 public class Routeur implements Runnable {
-    
-    /**************************************/
-    /********* PRIVATE ATTRIBUTS **********/
-    /**************************************/    
-    private String nomRouteur;
-    private DatagramSocket routeurSocket = null;
-    private DatagramPacket packetReceive;
-    private int port;
-    private int typeRoutage;
-    private int indiceCoutLS;
-    private String predecesseurRouteurLS;
-    private Hashtable<String, Routeur> N = new Hashtable<String, Routeur>();
-    private Hashtable<String, Routeur> listeRouteurs = new Hashtable<String, Routeur>();
-    private Hashtable<String, Arc> listeArcs = new Hashtable<String,Arc>();
-    private Hashtable<String, Hote> listeHotes = new Hashtable<String,Hote>();
-    private Hashtable<Integer,Routeur> tableRoutageLS = new Hashtable<Integer,Routeur>();
-    private Hashtable<Integer,Hote> tableRoutageHote = new Hashtable<Integer,Hote>();
+	private Reseau monReseau;
+	//private Integer nbVoisins;
+	//private Integer nbElemtsReseau;
+	private String nomRouteur;
+	private Integer port;
+	private Integer portVoisin;
+	private int coutInfini = 1000000;
+	private Hashtable <String,Arc> ArcToVoisins=new Hashtable <String,Arc>();
+	private Hashtable <Integer,Routeur> bestPath = new Hashtable <Integer,Routeur>();
+	private Hashtable <Routeur,Integer> coutRouteur = new Hashtable <Routeur,Integer>();
+	private DatagramPacket packetReceive;
+	private Hashtable <Integer,Routeur> receivedTable;
+	private DatagramSocket waitingMessage;
+	private int typeRoutage;
+	private Hashtable<String, Hote> listeHotes = new Hashtable<String,Hote>();
+	private Hashtable<Integer,Hote> tableRoutageHote = new Hashtable<Integer,Hote>();
+	private Hashtable<String, Arc> touslesArcs;
+	private Hashtable<String, Routeur> touslesRouteurs;
 
-    //Private attribut for logging purposes
-    private static final Logger logger = Logger.getLogger(Routeur.class);
-    
-    
-    /**************************************/
-    /************ CONSTRUCTORS *************/
-    /**************************************/
-    public Routeur(Routeur r) {
-        this.nomRouteur = r.getNomRouteur();
-        this.port = r.getPort();
-        this.typeRoutage = r.getTypeRoutage();
-        this.indiceCoutLS = r.getIndiceCoutLS();
-        this.predecesseurRouteurLS = r.getPredecesseurRouteurLS();
-    }
-    
-    public Routeur(String nomRouteur, int port) {
-        this.nomRouteur = nomRouteur;
-        this.port = port;
-    }
+	public Hashtable<String, Routeur> getTouslesRouteurs() {
+		return touslesRouteurs;
+	}
 
-    
-    /**************************************/
-    /********* GETTER AND SETTER **********/
-    /**************************************/
-    public Hashtable<String, Arc> getListeArcs() {
-        return listeArcs;
-    }
+	public void setTouslesRouteurs(Hashtable<String, Routeur> touslesRouteurs) {
+		this.touslesRouteurs = touslesRouteurs;
+	}
 
-    public void setListeArcs(Hashtable<String, Arc> listeArcs) {
-        this.listeArcs = listeArcs;
-    }
+	public Hashtable<String, Arc> getTouslesArcs() {
+		return touslesArcs;
+	}
 
-    public Hashtable<String, Hote> getListeHotes() {
-        return listeHotes;
-    }
+	public void setTouslesArcs(Hashtable<String, Arc> touslesArcs) {
+		this.touslesArcs = touslesArcs;
+	}
 
-    public void setListeHotes(Hashtable<String, Hote> listeHotes) {
-        this.listeHotes = listeHotes;
-    }
+	public int getTypeRoutage() {
+		return typeRoutage;
+	}
 
-    public Hashtable<Integer, Routeur> getTableRoutageLS() {
-        return tableRoutageLS;
-    }
+	public void setTypeRoutage(int typeRoutage) {
+		this.typeRoutage = typeRoutage;
+	}
 
-    public void setTableRoutageLS(Hashtable<Integer, Routeur> tableDeRoutageLS) {
-        this.tableRoutageLS = tableDeRoutageLS;
-    }
+	public void ajouterHote(Hote unHote) {
+		listeHotes.put(unHote.getNomHote(), unHote);
+	}
 
-    public Hashtable<String, Routeur> getListeRouteurs() {
-        return listeRouteurs;
-    }
+	public void retirerHote(String nomHote) {
+		listeHotes.remove(nomHote);
+	}
 
-    public void setListeRouteurs(Hashtable<String, Routeur> listeRouteurs) {
-        this.listeRouteurs = listeRouteurs;
-    }
+	public void ajouterHoteTableRoutage(int portDestitation,Hote unHote) {
+		tableRoutageHote.put(portDestitation, unHote);
+	}
 
-    public int getIndiceCoutLS() {
-        return indiceCoutLS;
-    }
+	public synchronized void retirerHoteTableRoutage(int portDestitation) {
+		tableRoutageHote.remove(portDestitation);
+	}
+	//Private attribut for logging purposes
+	private static final Logger logger = Logger.getLogger(Routeur.class);
 
-    public void setIndiceCoutLS(int indiceCoutLS) {
-        this.indiceCoutLS = indiceCoutLS;
-    }
+	public Routeur()
+	{
 
-    public Hashtable<Integer, Hote> getTableRoutageHote() {
-        return tableRoutageHote;
-    }
+	}
 
-    public void setTableRoutageHote(Hashtable<Integer, Hote> tableRoutageHote) {
-        this.tableRoutageHote = tableRoutageHote;
-    }
+	public Routeur(String nomRouteur, int port) {
+		this.nomRouteur = nomRouteur;
+		this.port = port;
+	}
 
-    public String getPredecesseurRouteurLS() {
-        return predecesseurRouteurLS;
-    }
+	public Integer getPort() {
+		return port;
+	}
 
-    public void setPredecesseurRouteurLS(String predecesseurRouteurLS) {
-        this.predecesseurRouteurLS = predecesseurRouteurLS;
-    }
+	public void setPort(int port) {
+		this.port = port;
+	}
 
-    public DatagramSocket getRouteurSocket() {
-        return routeurSocket;
-    }
+	public String getNomRouteur() {
+		return nomRouteur;
+	}
 
-    public void setRouteurSocket(DatagramSocket routeurSocket) {
-        this.routeurSocket = routeurSocket;
-    }
+	public void setNomRouteur(String nomRouteur) {
+		this.nomRouteur = nomRouteur;
+	}
 
-    public DatagramPacket getPacketReceive() {
-        return packetReceive;
-    }
+	public void trouverVoisin()
+	{
+		//touslesArcs = monReseau.getListeArcs();
+		Enumeration<Arc> nb = touslesArcs.elements();
 
-    public void setPacketReceive(DatagramPacket packetReceive) {
-        this.packetReceive = packetReceive;
-    }
+		while(nb.hasMoreElements()) 
+		{
+			Arc key = nb.nextElement(); 
+			Arc current = (Arc)touslesArcs.get(key.getNomArc());
+			
+			
+			if ( this.nomRouteur == current.getRouteurA().getNomRouteur() )
+			{
+				ArcToVoisins.put(current.getRouteurB().getNomRouteur(), current);
+				bestPath.put(current.getRouteurB().getPort(), current.getRouteurB());
+				coutRouteur.put(current.getRouteurB(),current.getCout());
+				logger.info("Routeur"+ this.getNomRouteur() + ": Neighbor " + current.getRouteurB().getNomRouteur()+ " added to table");
+			}
 
-    public Hashtable<String, Routeur> getN() {
-        return N;
-    }
+			else if (this.nomRouteur == current.getRouteurB().getNomRouteur()  )
+			{
+				
+				ArcToVoisins.put(current.getRouteurA().getNomRouteur(), current);
+				bestPath.put(current.getRouteurA().getPort(), current.getRouteurA());
+				coutRouteur.put(current.getRouteurB(),current.getCout());
+				logger.info("Routeur: Neighbor " + current.getRouteurA().getNomRouteur()+ " added to table");
+			}
+		}
+	}
 
-    public void setN(Hashtable<String, Routeur> N) {
-        this.N = N;
-    }   
-    
-    public int getPort() {
-        return port;
-    }
+	public Hashtable<String, Arc> getArcToVoisins() {
+		return ArcToVoisins;
+	}
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+	public void setArcToVoisins(Hashtable<String, Arc> arcToVoisins) {
+		ArcToVoisins = arcToVoisins;
+	}
 
-    public int getTypeRoutage() {
-        return typeRoutage;
-    }
+	public Hashtable<Integer, Routeur> getBestPath() {
+		return bestPath;
+	}
 
-    public void setTypeRoutage(int typeRoutage) {
-        this.typeRoutage = typeRoutage;
-    }   
+	public void setBestPath(Hashtable<Integer, Routeur> bestPath) {
+		this.bestPath = bestPath;
+	}
 
-    public String getNomRouteur() {
-        return nomRouteur;
-    }
+	public Hashtable<Routeur, Integer> getCoutRouteur() {
+		return coutRouteur;
+	}
 
-    public void setNomRouteur(String nomRouteur) {
-        this.nomRouteur = nomRouteur;
-    }
-    
-    
-    /**************************************/
-    /********   UTILITY METHODS  **********/
-    /**************************************/
-    public void ajouterArc(Arc unArc) {
-       listeArcs.put(unArc.getNomArc(), unArc);
-    }
-    
-    public void retirerArc(String nomArc) {
-       listeArcs.remove(nomArc);
-    }
-    public void ajouterHote(Hote unHote) {
-       listeHotes.put(unHote.getNomHote(), unHote);
-    }
-    
-    public void retirerHote(String nomHote) {
-       listeHotes.remove(nomHote);
-    }
-    
-    public void ajouterRouteur(Routeur unRouteur) {
-       listeRouteurs.put(unRouteur.getNomRouteur(), unRouteur);
-    }
-    
-    public void retirerRouteur(String nomRouteur) {
-       listeRouteurs.remove(nomRouteur);
-    }
-    
-    public void ajouterRouteTableRoutageLS(int portDestitation,Routeur fowardRouter) {
-       tableRoutageLS.put(portDestitation, fowardRouter);
-    }
-    
-    public void retirerRouteTableRoutageLS(int portDestitation) {
-       tableRoutageLS.remove(portDestitation);
-    }
-    
-    public void ajouterHoteTableRoutage(int portDestitation,Hote unHote) {
-       tableRoutageHote.put(portDestitation, unHote);
-    }
-    
-    public synchronized void retirerHoteTableRoutage(int portDestitation) {
-       tableRoutageHote.remove(portDestitation);
-    }
-    
-    
-    /**************************************/
-    /*************   METHODS  *************/
-    /**************************************/
-    //Permet de trouver le cout d'un arc qui relie deux routeurs
-    private synchronized int trouverCoutPour(String routeurA, String routeurB){
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): trouve le côut pour l'arc qui relie " + routeurA + " et " + routeurB);
-        for (Arc value : listeArcs.values()) {
-            if(( value.getRouteurA().getNomRouteur().equals(routeurA) && value.getRouteurB().getNomRouteur().equals(routeurB) ) || ( value.getRouteurA().getNomRouteur().equals(routeurB) && value.getRouteurB().getNomRouteur().equals(routeurA) )){
-                logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): Le cout pour l'arc qui relie " + routeurA + " et " + routeurB + " est de: " + value.getCout());
-                return value.getCout();                
-            }
-        }
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): aucun arc trouvé entre " + routeurA + " et " + routeurB);
-        return -1; // retourne -1 si l'arc n'existe pas
-    }
-    
-    
-    //Permet de trouver tous les voisins d'un routeur
-    private synchronized Hashtable<String,Routeur> trouverVoisin(String routeurSource){
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisin():Permet de trouver les voisins d'un routeur source: ");
-        
-        Hashtable<String,Routeur> routeurVoisin = new Hashtable<String,Routeur>();
-        
-        for (Arc value : listeArcs.values()) {
-            if(( value.getRouteurA().getNomRouteur().equals(routeurSource) )){
-                routeurVoisin.put(value.getRouteurB().getNomRouteur(),value.getRouteurB());
-            }
-            if(( value.getRouteurB().getNomRouteur().equals(routeurSource) )){
-                routeurVoisin.put(value.getRouteurA().getNomRouteur(),value.getRouteurA());
-            }
-        }
-        return routeurVoisin;
-    }
-    
-    
-    //Permet de  trouver tous les voisisn d'un routeur qui ne sont pas dans la liste N.
-    private synchronized Hashtable<String,Routeur> trouverVoisinNonN(String routeurSource){
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): Permet de trouver les voisins du routeur: " + routeurSource);
-        
-        Hashtable<String,Routeur> routeurVoisin = new Hashtable<String,Routeur>();
-        
-        for (Arc value : listeArcs.values()) {
-            if(( value.getRouteurA().getNomRouteur().equals(routeurSource) && N.containsKey(value.getRouteurB().getNomRouteur()) == false )){
-                routeurVoisin.put(value.getRouteurB().getNomRouteur(),value.getRouteurB());
-            }
-            if(( value.getRouteurB().getNomRouteur().equals(routeurSource) && N.containsKey(value.getRouteurA().getNomRouteur()) == false )){
-                routeurVoisin.put(value.getRouteurA().getNomRouteur(),value.getRouteurA());
-            }
-        }
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): les voisins de sont: " + routeurVoisin.toString());
-        return routeurVoisin;
-    }
-    
-    
-    //Permet de trouver le routeur qui a le côute D(w) le plus bas.
-    private synchronized String trouverPlusPetitDW(Hashtable<String, Routeur> listeW){
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): on trouve le w le avec le plus petit D(w)");
-        int indice = 100000;
-        String nom = "";
-        //logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): intérieur:" + listeW.toString());
+	public void setCoutRouteur(Hashtable<Routeur, Integer> coutRouteur) {
+		this.coutRouteur = coutRouteur;
+	}
 
-        for (Routeur routeurCourant : listeW.values()) {
-            if(routeurCourant.getIndiceCoutLS() <= indice && N.containsKey(routeurCourant.getNomRouteur()) == false  )
-            {
-                indice = routeurCourant.getIndiceCoutLS();
-                nom = routeurCourant.getNomRouteur();
-            }
-        }
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverPlusPetitDW(): le plus petit est: " + nom);
+	public void setPort(Integer port) {
+		this.port = port;
+	}
 
-        return nom;
-    }
-    
-    
-    //Permet de déduire la table de routage Ls suite au calcul LS.
-    private synchronized void calculerTableRoutageLS(Hashtable<String, Routeur> cloneListe){
-        logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Suite à l'algorithme utilisé en calculPourLs(), nous déduisons la table de routage LS.");
-        
-        for (Routeur routeurCourant : cloneListe.values()) {
-            if(!routeurCourant.getNomRouteur().equals(this.getNomRouteur())){ 
-                logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Début calcul pour la destination: " + routeurCourant.getNomRouteur());
+	public void initTable()
+	{
+		//Hashtable<String, Routeur> touslesRouteurs = monReseau.getListeRouteurs();
+		Enumeration<Routeur> nb = touslesRouteurs.elements();
 
-                Routeur fowardRouteur = trouverFoward(cloneListe,routeurCourant);
-                ajouterRouteTableRoutageLS(routeurCourant.getPort(),fowardRouteur);
-                logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): pour se rendre à: " + routeurCourant.getNomRouteur() + " on foward vers: " + fowardRouteur.getNomRouteur());
-            }
-        } 
-        
-        logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): la table de routage a été généré.");
-        logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): table de routage: " + this.getTableRoutageLS().toString());
-    }
-    
-    
-    //Fonction récursive qui nous permet de trouver le routeur à qui nous devons transferer
-    private synchronized Routeur trouverFoward(Hashtable<String, Routeur> cloneListe, Routeur r){
-        logger.info("Routeur-" + this.getNomRouteur() +": trouverFoward(): Nous cherchons le prédécesseur de: " + r.getNomRouteur());
+		while(nb.hasMoreElements()) 
+		{
+			Routeur key = nb.nextElement(); 
+			Routeur currentRouteur = (Routeur)touslesRouteurs.get(key.getNomRouteur());
+			
+			if(!coutRouteur.containsKey(currentRouteur))
+			{
+				logger.info("Routeur " +this.getNomRouteur()+ " : Routeur " + currentRouteur.getNomRouteur()+ " non voisin");
+				coutRouteur.put(currentRouteur, coutInfini);
+				bestPath.put(currentRouteur.getPort(), currentRouteur);
+				logger.info("Routeur" +this.getNomRouteur()+ " : Cout vers " + currentRouteur.getNomRouteur()+ " mis a l'infini");
+			}
+		}
+	}
 
-        if(r.getPredecesseurRouteurLS().equals(this.getNomRouteur()) ) return r;        
-        else return trouverFoward(cloneListe,cloneListe.get(r.getPredecesseurRouteurLS()));
-    }
-    
-    
-    //Permet de trouver le chemin optimale pour l'instance du routeur.
-    private synchronized void calculPourLs(){
-        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): Début de l'algorithme pour trouver les chemins les plus courts");
- 
-        //Ajout du chemin le plus court pour le routeur source
-        ajouterRouteTableRoutageLS(this.getPort(),this);
-        
-        //Ajout du source dans N
-        N.put(this.getNomRouteur(),this);
-        
-        //Routeur voisin de source
-        Hashtable<String,Routeur> routeurVoisin = trouverVoisin(this.getNomRouteur());
-        
-        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): initialisation des côuts D(v) pour le routeur: " + this.getNomRouteur());
-        
-        //On évite que tous les threads modifie la même liste.
-        Hashtable<String, Routeur> cloneListe = new Hashtable<String, Routeur>();
-        for (Routeur routeurCourant : listeRouteurs.values()) {            
-                cloneListe.put(routeurCourant.getNomRouteur(), new Routeur(routeurCourant));
-        }
-        
-        //STEP 1, on met tous à infini et on met les couts pour nos voisins
-        for (Routeur routeurCourant : cloneListe.values()) {
-            if(routeurVoisin.containsKey(routeurCourant.getNomRouteur())){
-                routeurCourant.setIndiceCoutLS(trouverCoutPour(this.getNomRouteur(),routeurCourant.getNomRouteur()));
-                routeurCourant.setPredecesseurRouteurLS(this.getNomRouteur());
-            }
-            else{
-                routeurCourant.setIndiceCoutLS(1000000); //infini
-            }
-        } 
-        
-        //STEP 2,
-        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): debut du do while"); 
-        do{
-            
+	public void start() {		
 
-            //On trouve le routeur avec la podération la plus petite
-            String w = trouverPlusPetitDW(cloneListe);
-            Routeur rW = cloneListe.get(w);
+		try 
+		{
+			waitingMessage = new DatagramSocket (port);
+			logger.info("Routeur-" + this.getNomRouteur() + " Opening socket on " + this.getPort()); 
 
-            //On ajoute le routeur dans notre liste de routeur ayant le chemin le plus optimale
-            N.put(w, rW); // On ajoute le routeur courant à la liste N
-            
-            logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): N à été MaJ. le routeur: "+ rW.getNomRouteur() + " à comme prédécesseur: " + rW.getPredecesseurRouteurLS());
-            
-            //On récupere les voisins de w, qui ne sont pas déja dans N
-            routeurVoisin = trouverVoisinNonN(w);
-            
-            //Corrige les pointeurs
-            for (Routeur r : routeurVoisin.values()) {
-                routeurVoisin.replace(r.getNomRouteur(), cloneListe.get(r.getNomRouteur()));
-            } 
-            
-            logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): recupere les voisins de w");
-            
-            //On récupere le routeur en lien avec w.
-            
-            for (Routeur routeurCourant : routeurVoisin.values()) {
-                //On vérifie si l'indice de cout d(v) est plus petit que l'addition de d(w) + c(w,v)
-                if(routeurCourant.getIndiceCoutLS() > ( rW.getIndiceCoutLS() + trouverCoutPour(w,routeurCourant.getNomRouteur()) ) ){
-                    //l'indice du chemin via w, est inférieur alors on met à jour
-                    routeurCourant.setIndiceCoutLS(rW.getIndiceCoutLS() + trouverCoutPour(w,routeurCourant.getNomRouteur()));
-                    routeurCourant.setPredecesseurRouteurLS(w);
-                }                
-            } 
-        logger.info("Routeur-" + this.getNomRouteur() +": N ressemble à: " + N.toString());    
-        }while(N.size() != cloneListe.size());
-        
-        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): calcul terminé.");
-        logger.info("Routeur-" + this.getNomRouteur() +": calculPourLs(): création de la table de routage avec les données obtenues.");
+			trouverVoisin();
+			logger.info("Routeur: Les voisins ont ete ajoutes a la table");
 
-        //STEP 3
-        calculerTableRoutageLS(cloneListe); 
-    }
-    
-    
-    //Permet de foward un paquet vers la destination reçu en param
-    private void sendPacket(UDPPacket udpPacket, int destinationPort) {
-        try {
-                logger.info("Routeur-" + this.getNomRouteur() + ": sendPacket executed");
-                logger.info("Routeur-" + this.getNomRouteur() + ": sendPacket : " + udpPacket.toString());                
-                byte[] packetData = Marshallizer.marshallize(udpPacket);
-                DatagramPacket datagram = new DatagramPacket(packetData,
-                                packetData.length, 
-                                udpPacket.getDestination(),
-                                destinationPort); // port de la passerelle par default
-                routeurSocket.send(datagram); // émission non-bloquante
-        } catch (SocketException e) {
-                System.out.println("Routeur-" + this.getNomRouteur() + " Socket: " + e.getMessage());
-        } catch (IOException e) {
-                System.out.println("Routeur-" + this.getNomRouteur() + " IO: " + e.getMessage());
-        }
-    }
-    
-    
-    /**************************************/
-    /*************   THREAD   *************/
-    /**************************************/
-    public void start() {		
-        
-        try {            
-           if(typeRoutage == Reseau.LSROUTING){
-               //Génération des meilleurs chemins avec LS               
-               logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type LS (LINK-STATE)");
-               
-               calculPourLs();               
-           }
-           
-            logger.info("Routeur-" + this.getNomRouteur()+ " a été démarré sur le port: " + this.getPort());
-            routeurSocket = new DatagramSocket(this.getPort()); // port pour l'envoi et l'écoute
-                
-            
-            byte[] buffer = new byte[1500];
-                
-            packetReceive = new DatagramPacket(buffer, buffer.length);               
-                
-            do  {                   
-                    
-                    logger.info("Routeur-" + this.getNomRouteur() + ": waiting for a packet");
-                    routeurSocket.receive(packetReceive); // reception bloquante
-                    logger.info("Routeur-" + this.getNomRouteur() + ": a packet was receive");                   
-                    
-                    UDPPacket packet = (UDPPacket) Marshallizer.unmarshall(packetReceive);
-                    
-                    if(packet.getType() == UDPPacket.FOWARD){
-                        logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type foward");
-                        logger.info("Routeur-" + this.getNomRouteur() + ": on regarde si la destination est dans notre table d'hôte");
-                        
-                        if(tableRoutageHote.containsKey(packet.getDestinationPort())){
-                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination est dans notre table d'hôte");
-                            
-                            sendPacket(packet,packet.getDestinationPort());
-                            logger.info("Routeur-" + this.getNomRouteur() + ": le paquet à été remis à l'hôte: " + tableRoutageHote.get(packet.getDestinationPort()));
+			initTable();
+			logger.info("Routeur: Initialized table");
+			byte[] buffer = new byte[1500];
 
-                        }
-                        else
-                        {
-                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD.");                            
-                            int portDestination = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getPort() : null;
-                            String destinataire = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getNomRouteur() : null;
-                            sendPacket(packet,portDestination);
-                            logger.info("Routeur-" + this.getNomRouteur() + ": le paquet à été transmis à: " + destinataire);
-                            
-                        }                        
-                        
-                        logger.info("Routeur-" + this.getNomRouteur() + " le packet reçu à été bien été transmis.");   
-                    }
-                    else {
-                        //Commencer un thread de DVHandler
-                    }
-            }while (true);
+			packetReceive = new DatagramPacket(buffer, buffer.length);
+			// on recoit packet d'un voisin 
+			while (true)
+			{
+				logger.info("Routeur: Waiting for neighbor packet on " + this.getNomRouteur());
+				waitingMessage.receive(packetReceive);
+				logger.info("Routeur: Neighbor packet received on " + this.getNomRouteur());
 
-        } catch (Exception e) {
-                System.out.println("IO: " + e.getMessage());
-        }
-        finally {
-                logger.info("Routeur-" + this.getNomRouteur() +" Fin du thread.");                
-        }
-    }
-    
-     @Override
-    public void run() {
-            start();	
-    }  
-    
+				UDPPacket udpPacket = (UDPPacket) Marshallizer.unmarshall(packetReceive);
+				portVoisin = udpPacket.getSourcePort();
+
+				if (udpPacket.isForFoward())
+				{
+					logger.info("Routeur: Forward Packet Received  on " + this.getNomRouteur());
+					logger.info("Routeur-" + this.getNomRouteur() + ": looking if destination already exists in table");
+					logger.info("Routeur-" + this.getNomRouteur() + ": port Voisin" +portVoisin );
+					
+					if(bestPath.containsKey(9005))
+					{
+						//On envoie au routeur concerne
+						logger.info("Routeur-" + this.getNomRouteur() + ": destination already in table");
+
+						//logger.info("Routeur: Forward Thread Started  on " + this.getNomRouteur());
+
+						sendPacket(udpPacket,udpPacket.getDestinationPort());
+						logger.info("Routeur-" + this.getNomRouteur() + ": le paquet � �t� remis � l'h�te: " + bestPath.get(udpPacket.getDestinationPort()));
+					}
+					else
+					{
+						for (Routeur routeurCourant : bestPath.values())
+						{
+							logger.info("Routeur-" + this.getNomRouteur() + " MON NOM EST" + routeurCourant.getNomRouteur());
+							logger.info("Routeur-" + this.getNomRouteur() + " MON PORT EST" + routeurCourant.getPort());
+							logger.info("Routeur-" + this.getNomRouteur() + " MON PORT DESTINATION EST" + udpPacket.getDestinationPort());
+							
+						} 
+					}
+					logger.info("Routeur-" + this.getNomRouteur() + " packet sent."); 
+				}
+				else if(udpPacket.isForUpdate())
+				{
+					logger.info("Routeur: Update Packet Received on " + this.getNomRouteur());
+					extraireTable(udpPacket);
+					logger.info("Routeur-" + this.getNomRouteur() + " La table a ete extraite du packet."); 
+
+					//ON START THREAD MAJ TABLE 
+					Thread DVThread = new Thread(new DVHandler(receivedTable, this));
+					DVThread.start();
+					logger.info("Routeur: Update Thread Started on " + this.getNomRouteur());
+				}
+				else 
+				{
+					logger.info("Routeur: udpPacket isn't for Update OR Forward: on " + this.getNomRouteur());
+				}
+
+			}
+			//waitingMessage.close();
+
+		} catch (Exception e) {
+			System.out.println("IO: " + e.getMessage());
+		}
+		finally {
+			logger.info("Fin de l'initialisation du reseau");                
+		}
+
+	}  
+
+	public Integer getPortVoisin() {
+		return portVoisin;
+	}
+
+	public void setPortVoisin(Integer portVoisin) {
+		this.portVoisin = portVoisin;
+	}
+
+	public void extraireTable(UDPPacket receivedPacket)
+	{
+		ByteArrayInputStream bis = new ByteArrayInputStream(receivedPacket.getData());
+		ObjectInput in = null;
+		Hashtable <Integer,Routeur> extractedTable; 
+		try {
+			in = new ObjectInputStream(bis);
+			Object o = in.readObject(); 
+			extractedTable = (Hashtable <Integer,Routeur>)o;
+
+			this.receivedTable=extractedTable;
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		} 
+		catch (ClassNotFoundException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				bis.close();
+			} catch (IOException ex) {
+				// ignore close exception
+			}
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (IOException ex) {
+				// ignore close exception
+
+			}
+		}
+	}
+
+	//Permet de foward un paquet vers la destination re�u en param
+	private void sendPacket(UDPPacket udpPacket, int destinationPort) {
+		try {
+			logger.info("Routeur-" + this.getNomRouteur() + ": sendPacket executed");
+			logger.info("Routeur-" + this.getNomRouteur() + ": sendPacket : " + udpPacket.toString());                
+			byte[] packetData = Marshallizer.marshallize(udpPacket);
+			DatagramPacket datagram = new DatagramPacket(packetData,
+					packetData.length, 
+					udpPacket.getDestination(),
+					destinationPort); // port de la passerelle par default
+			waitingMessage.send(datagram); // �mission non-bloquante
+		} catch (SocketException e) {
+			System.out.println("Routeur-" + this.getNomRouteur() + " Socket: " + e.getMessage());
+		} catch (IOException e) {
+			System.out.println("Routeur-" + this.getNomRouteur() + " IO: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public void run() {
+		start();	
+	}  
+
 }

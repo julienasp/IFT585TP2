@@ -1,0 +1,77 @@
+2016-02-17 19:14:58.558 [main] INFO  dataObject.Reseau - Reseau: Le reseau démarre sont initialisation.
+2016-02-17 19:14:58.561 [main] INFO  dataObject.Reseau - Reseau: ouverture des threads pour les routeurs
+2016-02-17 19:14:58.563 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: A
+2016-02-17 19:14:58.563 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: F
+2016-02-17 19:14:58.564 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: E
+2016-02-17 19:14:58.564 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: D
+2016-02-17 19:14:58.565 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: C
+2016-02-17 19:14:58.565 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: B
+2016-02-17 19:14:58.566 [main] INFO  dataObject.Reseau - Fin de l'initialisation du reseau
+2016-02-17 19:14:58.568 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur-A Opening socket on 9000
+2016-02-17 19:14:58.568 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E Opening socket on 9004
+2016-02-17 19:14:58.568 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F Opening socket on 9005
+2016-02-17 19:14:58.568 [pool-2-thread-1] INFO  dataObject.Routeur - RouteurA: Neighbor D added to table
+2016-02-17 19:14:58.569 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur: Neighbor E added to table
+2016-02-17 19:14:58.569 [pool-2-thread-1] INFO  dataObject.Routeur - RouteurA: Neighbor B added to table
+2016-02-17 19:14:58.569 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur: Les voisins ont ete ajoutes a la table
+2016-02-17 19:14:58.569 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur: Neighbor C added to table
+2016-02-17 19:14:58.569 [pool-2-thread-3] INFO  dataObject.Routeur - RouteurE: Neighbor F added to table
+2016-02-17 19:14:58.569 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur A : Routeur A non voisin
+2016-02-17 19:14:58.569 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur: Les voisins ont ete ajoutes a la table
+2016-02-17 19:14:58.569 [pool-2-thread-1] INFO  dataObject.Routeur - RouteurA : Cout vers A mis a l'infini
+2016-02-17 19:14:58.569 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur: Neighbor B added to table
+2016-02-17 19:14:58.569 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur A : Routeur F non voisin
+2016-02-17 19:14:58.569 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur F : Routeur A non voisin
+2016-02-17 19:14:58.569 [pool-2-thread-1] INFO  dataObject.Routeur - RouteurA : Cout vers F mis a l'infini
+2016-02-17 19:14:58.570 [pool-2-thread-2] INFO  dataObject.Routeur - RouteurF : Cout vers A mis a l'infini
+2016-02-17 19:14:58.570 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur F : Routeur E non voisin
+2016-02-17 19:14:58.569 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur: Neighbor D added to table
+2016-02-17 19:14:58.570 [pool-2-thread-2] INFO  dataObject.Routeur - RouteurF : Cout vers E mis a l'infini
+2016-02-17 19:14:58.570 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur: Les voisins ont ete ajoutes a la table
+2016-02-17 19:14:58.570 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur A : Routeur E non voisin
+2016-02-17 19:14:58.570 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur E : Routeur A non voisin
+2016-02-17 19:14:58.570 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur F : Routeur D non voisin
+2016-02-17 19:14:58.570 [pool-2-thread-3] INFO  dataObject.Routeur - RouteurE : Cout vers A mis a l'infini
+2016-02-17 19:14:58.570 [pool-2-thread-1] INFO  dataObject.Routeur - RouteurA : Cout vers E mis a l'infini
+2016-02-17 19:14:58.571 [pool-2-thread-2] INFO  dataObject.Routeur - RouteurF : Cout vers D mis a l'infini
+2016-02-17 19:14:58.571 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur E : Routeur D non voisin
+2016-02-17 19:14:58.571 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur A : Routeur C non voisin
+2016-02-17 19:14:58.571 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur F : Routeur C non voisin
+2016-02-17 19:14:58.571 [pool-2-thread-1] INFO  dataObject.Routeur - RouteurA : Cout vers C mis a l'infini
+2016-02-17 19:14:58.571 [pool-2-thread-2] INFO  dataObject.Routeur - RouteurF : Cout vers C mis a l'infini
+2016-02-17 19:14:58.571 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur: Initialized table
+2016-02-17 19:14:58.571 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur F : Routeur B non voisin
+2016-02-17 19:14:58.571 [pool-2-thread-3] INFO  dataObject.Routeur - RouteurE : Cout vers D mis a l'infini
+2016-02-17 19:14:58.571 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur E : Routeur C non voisin
+2016-02-17 19:14:58.571 [pool-2-thread-2] INFO  dataObject.Routeur - RouteurF : Cout vers B mis a l'infini
+2016-02-17 19:14:58.572 [pool-2-thread-3] INFO  dataObject.Routeur - RouteurE : Cout vers C mis a l'infini
+2016-02-17 19:14:58.572 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur: Initialized table
+2016-02-17 19:14:58.572 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur E : Routeur B non voisin
+2016-02-17 19:14:58.572 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur: Waiting for neighbor packet on A
+2016-02-17 19:14:58.572 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur: Waiting for neighbor packet on F
+2016-02-17 19:14:58.572 [pool-2-thread-3] INFO  dataObject.Routeur - RouteurE : Cout vers B mis a l'infini
+2016-02-17 19:14:58.572 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur: Initialized table
+2016-02-17 19:14:58.572 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur: Waiting for neighbor packet on E
+2016-02-17 19:14:58.573 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D Opening socket on 9003
+2016-02-17 19:14:58.573 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C Opening socket on 9002
+2016-02-17 19:14:58.573 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur: Neighbor A added to table
+2016-02-17 19:14:58.573 [pool-2-thread-5] INFO  dataObject.Routeur - RouteurC: Neighbor F added to table
+2016-02-17 19:14:58.573 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur: Neighbor C added to table
+2016-02-17 19:14:58.573 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur: Neighbor B added to table
+2016-02-17 19:14:58.573 [pool-2-thread-4] INFO  dataObject.Routeur - RouteurD: Neighbor E added to table
+2016-02-17 19:14:58.574 [pool-2-thread-5] INFO  dataObject.Routeur - RouteurC: Neighbor D added to table
+2016-02-17 19:14:58.574 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur: Les voisins ont ete ajoutes a la table
+2016-02-17 19:14:58.574 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur: Les voisins ont ete ajoutes a la table
+2016-02-17 19:14:58.574 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur C : Routeur A non voisin
+2016-02-17 19:14:58.574 [pool-2-thread-5] INFO  dataObject.Routeur - RouteurC : Cout vers A mis a l'infini
+2016-02-17 19:14:58.574 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur D : Routeur A non voisin
+2016-02-17 19:14:58.574 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur C : Routeur E non voisin
+2016-02-17 19:14:58.574 [pool-2-thread-5] INFO  dataObject.Routeur - RouteurC : Cout vers E mis a l'infini
+2016-02-17 19:14:58.575 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur C : Routeur B non voisin
+2016-02-17 19:14:58.575 [pool-2-thread-5] INFO  dataObject.Routeur - RouteurC : Cout vers B mis a l'infini
+2016-02-17 19:14:58.575 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur: Initialized table
+2016-02-17 19:14:58.575 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur: Waiting for neighbor packet on C
+2016-02-17 19:14:58.574 [pool-2-thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers A mis a l'infini
+2016-02-17 19:14:58.575 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur D : Routeur F non voisin
+2016-02-17 19:14:58.576 [pool-2-thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers F mis a l'infini
+2016-02-17 19:14:58.576 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur D : Routeur C non voisin
