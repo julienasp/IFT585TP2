@@ -1,153 +1,79 @@
-2016-02-18 02:27:39.875 [main] INFO  dataObject.Reseau - Reseau: Le reseau dÃ©marre sont initialisation.
-2016-02-18 02:27:39.878 [main] INFO  dataObject.Reseau - Reseau: ouverture des threads pour les routeurs
-2016-02-18 02:27:39.879 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: A
-2016-02-18 02:27:39.879 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur-A a été démarré sur le port: 9000
-2016-02-18 02:27:39.880 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: F
-2016-02-18 02:27:39.880 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F a été démarré sur le port: 9005
-2016-02-18 02:27:39.880 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: E
-2016-02-18 02:27:39.881 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: D
-2016-02-18 02:27:39.881 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: C
-2016-02-18 02:27:39.882 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: B
-2016-02-18 02:27:39.882 [main] INFO  dataObject.Reseau - Fin de l'initialisation du reseau
-2016-02-18 02:27:39.881 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E a été démarré sur le port: 9004
-2016-02-18 02:27:39.884 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur-A utilise un routage de type DV (DISTANCE VECTOR)
-2016-02-18 02:27:39.885 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E utilise un routage de type DV (DISTANCE VECTOR)
-2016-02-18 02:27:39.885 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F utilise un routage de type DV (DISTANCE VECTOR)
-2016-02-18 02:27:39.886 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B a été démarré sur le port: 9001
-2016-02-18 02:27:39.886 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C a été démarré sur le port: 9002
-2016-02-18 02:27:39.886 [pool-2-thread-7] INFO  dataObject.Hote - Hote-h2: waiting for a packet
-2016-02-18 02:27:39.887 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B utilise un routage de type DV (DISTANCE VECTOR)
-2016-02-18 02:27:39.887 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C utilise un routage de type DV (DISTANCE VECTOR)
-2016-02-18 02:27:39.887 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D a été démarré sur le port: 9003
-2016-02-18 02:27:39.888 [pool-2-thread-8] INFO  dataObject.Hote - Hote-h1: waiting for a packet
-2016-02-18 02:27:39.888 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D utilise un routage de type DV (DISTANCE VECTOR)
-2016-02-18 02:27:39.891 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur: Update Thread Started on D
-2016-02-18 02:27:39.891 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur: Update Thread Started on E
-2016-02-18 02:27:39.891 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E: waiting for a packet
-2016-02-18 02:27:39.891 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D: waiting for a packet
-2016-02-18 02:27:39.892 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur: Update Thread Started on F
-2016-02-18 02:27:39.892 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F: waiting for a packet
-2016-02-18 02:27:39.892 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur: Update Thread Started on C
-2016-02-18 02:27:39.892 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur: Update Thread Started on B
-2016-02-18 02:27:39.892 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur: Update Thread Started on A
-2016-02-18 02:27:39.892 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B: waiting for a packet
-2016-02-18 02:27:39.892 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C: waiting for a packet
-2016-02-18 02:27:39.892 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur-A: waiting for a packet
-2016-02-18 02:27:39.893 [Thread-3] INFO  dataObject.Routeur - RouteurA: Neighbor D added to table
-2016-02-18 02:27:39.894 [Thread-5] INFO  dataObject.Routeur - RouteurC: Neighbor F added to table
-2016-02-18 02:27:39.894 [Thread-3] INFO  dataObject.Routeur - RouteurA: Neighbor B added to table
-2016-02-18 02:27:39.893 [Thread-6] INFO  dataObject.Routeur - RouteurB: Neighbor E added to table
-2016-02-18 02:27:39.894 [Thread-3] INFO  dataObject.Routeur - RouteurA: Les voisins ont ete ajoutes a la table
-2016-02-18 02:27:39.894 [Thread-6] INFO  dataObject.Routeur - RouteurB: Neighbor A added to table
-2016-02-18 02:27:39.894 [Thread-8] INFO  dataObject.Routeur - RouteurE: Neighbor F added to table
-2016-02-18 02:27:39.894 [Thread-6] INFO  dataObject.Routeur - RouteurB: Neighbor C added to table
-2016-02-18 02:27:39.894 [Thread-3] INFO  dataObject.Routeur - Routeur A : Routeur A non voisin
-2016-02-18 02:27:39.894 [Thread-6] INFO  dataObject.Routeur - RouteurB: Les voisins ont ete ajoutes a la table
-2016-02-18 02:27:39.894 [Thread-5] INFO  dataObject.Routeur - RouteurC: Neighbor B added to table
-2016-02-18 02:27:39.894 [Thread-8] INFO  dataObject.Routeur - RouteurE: Neighbor B added to table
-2016-02-18 02:27:39.895 [Thread-5] INFO  dataObject.Routeur - RouteurC: Neighbor D added to table
-2016-02-18 02:27:39.894 [Thread-3] INFO  dataObject.Routeur - RouteurA : Cout vers A mis a l'infini
-2016-02-18 02:27:39.895 [Thread-8] INFO  dataObject.Routeur - RouteurE: Neighbor D added to table
-2016-02-18 02:27:39.895 [Thread-6] INFO  dataObject.Routeur - Routeur B : Routeur A non voisin
-2016-02-18 02:27:39.895 [Thread-8] INFO  dataObject.Routeur - RouteurE: Les voisins ont ete ajoutes a la table
-2016-02-18 02:27:39.895 [Thread-6] INFO  dataObject.Routeur - RouteurB : Cout vers A mis a l'infini
-2016-02-18 02:27:39.895 [Thread-8] INFO  dataObject.Routeur - Routeur E : Routeur A non voisin
-2016-02-18 02:27:39.895 [Thread-6] INFO  dataObject.Routeur - Routeur B : Routeur F non voisin
-2016-02-18 02:27:39.896 [Thread-8] INFO  dataObject.Routeur - RouteurE : Cout vers A mis a l'infini
-2016-02-18 02:27:39.895 [Thread-3] INFO  dataObject.Routeur - Routeur A : Routeur F non voisin
-2016-02-18 02:27:39.896 [Thread-6] INFO  dataObject.Routeur - RouteurB : Cout vers F mis a l'infini
-2016-02-18 02:27:39.896 [Thread-8] INFO  dataObject.Routeur - Routeur E : Routeur D non voisin
-2016-02-18 02:27:39.896 [Thread-6] INFO  dataObject.Routeur - Routeur B : Routeur D non voisin
-2016-02-18 02:27:39.896 [Thread-3] INFO  dataObject.Routeur - RouteurA : Cout vers F mis a l'infini
-2016-02-18 02:27:39.896 [Thread-6] INFO  dataObject.Routeur - RouteurB : Cout vers D mis a l'infini
-2016-02-18 02:27:39.896 [Thread-3] INFO  dataObject.Routeur - Routeur A : Routeur E non voisin
-2016-02-18 02:27:39.895 [Thread-5] INFO  dataObject.Routeur - RouteurC: Les voisins ont ete ajoutes a la table
-2016-02-18 02:27:39.896 [Thread-3] INFO  dataObject.Routeur - RouteurA : Cout vers E mis a l'infini
-2016-02-18 02:27:39.897 [Thread-5] INFO  dataObject.Routeur - Routeur C : Routeur A non voisin
-2016-02-18 02:27:39.897 [Thread-3] INFO  dataObject.Routeur - Routeur A : Routeur C non voisin
-2016-02-18 02:27:39.896 [Thread-8] INFO  dataObject.Routeur - RouteurE : Cout vers D mis a l'infini
-2016-02-18 02:27:39.896 [Thread-6] INFO  dataObject.Routeur - RouteurB:  Initialized table
-2016-02-18 02:27:39.897 [Thread-8] INFO  dataObject.Routeur - Routeur E : Routeur C non voisin
-2016-02-18 02:27:39.897 [Thread-8] INFO  dataObject.Routeur - RouteurE : Cout vers C mis a l'infini
-2016-02-18 02:27:39.898 [Thread-8] INFO  dataObject.Routeur - Routeur E : Routeur B non voisin
-2016-02-18 02:27:39.898 [Thread-8] INFO  dataObject.Routeur - RouteurE : Cout vers B mis a l'infini
-2016-02-18 02:27:39.898 [Thread-8] INFO  dataObject.Routeur - RouteurE:  Initialized table
-2016-02-18 02:27:39.897 [Thread-3] INFO  dataObject.Routeur - RouteurA : Cout vers C mis a l'infini
-2016-02-18 02:27:39.897 [Thread-5] INFO  dataObject.Routeur - RouteurC : Cout vers A mis a l'infini
-2016-02-18 02:27:39.899 [Thread-3] INFO  dataObject.Routeur - RouteurA:  Initialized table
-2016-02-18 02:27:39.899 [Thread-5] INFO  dataObject.Routeur - Routeur C : Routeur E non voisin
-2016-02-18 02:27:39.899 [Thread-5] INFO  dataObject.Routeur - RouteurC : Cout vers E mis a l'infini
-2016-02-18 02:27:39.899 [Thread-5] INFO  dataObject.Routeur - Routeur C : Routeur B non voisin
-2016-02-18 02:27:39.899 [Thread-7] INFO  dataObject.Routeur - RouteurF: Neighbor E added to table
-2016-02-18 02:27:39.900 [Thread-5] INFO  dataObject.Routeur - RouteurC : Cout vers B mis a l'infini
-2016-02-18 02:27:39.900 [Thread-7] INFO  dataObject.Routeur - RouteurF: Neighbor C added to table
-2016-02-18 02:27:39.900 [Thread-5] INFO  dataObject.Routeur - RouteurC:  Initialized table
-2016-02-18 02:27:39.900 [Thread-7] INFO  dataObject.Routeur - RouteurF: Les voisins ont ete ajoutes a la table
-2016-02-18 02:27:39.899 [Thread-4] INFO  dataObject.Routeur - RouteurD: Neighbor A added to table
-2016-02-18 02:27:39.900 [Thread-7] INFO  dataObject.Routeur - Routeur F : Routeur A non voisin
-2016-02-18 02:27:39.900 [Thread-7] INFO  dataObject.Routeur - RouteurF : Cout vers A mis a l'infini
-2016-02-18 02:27:39.900 [Thread-4] INFO  dataObject.Routeur - RouteurD: Neighbor C added to table
-2016-02-18 02:27:39.901 [Thread-4] INFO  dataObject.Routeur - RouteurD: Neighbor E added to table
-2016-02-18 02:27:39.901 [Thread-4] INFO  dataObject.Routeur - RouteurD: Les voisins ont ete ajoutes a la table
-2016-02-18 02:27:39.901 [Thread-4] INFO  dataObject.Routeur - Routeur D : Routeur A non voisin
-2016-02-18 02:27:39.901 [Thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers A mis a l'infini
-2016-02-18 02:27:39.901 [Thread-4] INFO  dataObject.Routeur - Routeur D : Routeur F non voisin
-2016-02-18 02:27:39.901 [Thread-7] INFO  dataObject.Routeur - Routeur F : Routeur E non voisin
-2016-02-18 02:27:39.902 [Thread-7] INFO  dataObject.Routeur - RouteurF : Cout vers E mis a l'infini
-2016-02-18 02:27:39.902 [Thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers F mis a l'infini
-2016-02-18 02:27:39.902 [Thread-7] INFO  dataObject.Routeur - Routeur F : Routeur D non voisin
-2016-02-18 02:27:39.902 [Thread-4] INFO  dataObject.Routeur - Routeur D : Routeur C non voisin
-2016-02-18 02:27:39.902 [Thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers C mis a l'infini
-2016-02-18 02:27:39.902 [Thread-7] INFO  dataObject.Routeur - RouteurF : Cout vers D mis a l'infini
-2016-02-18 02:27:39.903 [Thread-4] INFO  dataObject.Routeur - Routeur D : Routeur B non voisin
-2016-02-18 02:27:39.903 [Thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers B mis a l'infini
-2016-02-18 02:27:39.903 [Thread-4] INFO  dataObject.Routeur - RouteurD:  Initialized table
-2016-02-18 02:27:39.903 [Thread-6] INFO  dataObject.Routeur - RouteurB: Sending routing table to E
-2016-02-18 02:27:39.903 [Thread-7] INFO  dataObject.Routeur - Routeur F : Routeur C non voisin
-2016-02-18 02:27:39.904 [Thread-7] INFO  dataObject.Routeur - RouteurF : Cout vers C mis a l'infini
-2016-02-18 02:27:39.905 [Thread-7] INFO  dataObject.Routeur - Routeur F : Routeur B non voisin
-2016-02-18 02:27:39.906 [Thread-7] INFO  dataObject.Routeur - RouteurF : Cout vers B mis a l'infini
-2016-02-18 02:27:39.906 [Thread-7] INFO  dataObject.Routeur - RouteurF:  Initialized table
-2016-02-18 02:27:39.907 [Thread-7] INFO  dataObject.Routeur - RouteurF: Envoie table aux voisins
-2016-02-18 02:27:39.907 [Thread-8] INFO  dataObject.Routeur - RouteurE: Sending routing table to F
-2016-02-18 02:27:39.904 [Thread-4] INFO  dataObject.Routeur - RouteurD: Sending routing table to E
-2016-02-18 02:27:39.903 [Thread-3] INFO  dataObject.Routeur - RouteurA: Sending routing table to D
-2016-02-18 02:27:39.908 [Thread-5] INFO  dataObject.Routeur - RouteurC: Sending routing table to F
-2016-02-18 02:27:39.923 [Thread-8] INFO  dataObject.Routeur - Routeur-E: sendPacket executed
-2016-02-18 02:27:39.924 [Thread-6] INFO  dataObject.Routeur - Routeur-B: sendPacket executed
-2016-02-18 02:27:39.924 [Thread-6] INFO  dataObject.Routeur - Routeur-B: sendPacket : UDPPacket [type=0, seq=0, ack=0, fin=0, source=DESKTOP-F8L40PB/192.168.0.106, sourcePort=9001, destination=DESKTOP-F8L40PB/192.168.0.106, destinationPort=9004
-2016-02-18 02:27:39.926 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E: a packet was receive
-2016-02-18 02:27:39.927 [Thread-4] INFO  dataObject.Routeur - Routeur-D: sendPacket executed
-2016-02-18 02:27:39.927 [Thread-4] INFO  dataObject.Routeur - Routeur-D: sendPacket : UDPPacket [type=0, seq=0, ack=0, fin=0, source=DESKTOP-F8L40PB/192.168.0.106, sourcePort=9003, destination=DESKTOP-F8L40PB/192.168.0.106, destinationPort=9004
-2016-02-18 02:27:39.928 [Thread-4] INFO  dataObject.Routeur - RouteurD: On 9004
-2016-02-18 02:27:39.924 [Thread-8] INFO  dataObject.Routeur - Routeur-E: sendPacket : UDPPacket [type=0, seq=0, ack=0, fin=0, source=DESKTOP-F8L40PB/192.168.0.106, sourcePort=9004, destination=DESKTOP-F8L40PB/192.168.0.106, destinationPort=9005
-2016-02-18 02:27:39.928 [Thread-4] INFO  dataObject.Routeur - RouteurD: Envoie table aux voisins
-2016-02-18 02:27:39.928 [Thread-3] INFO  dataObject.Routeur - Routeur-A: sendPacket executed
-2016-02-18 02:27:39.929 [Thread-3] INFO  dataObject.Routeur - Routeur-A: sendPacket : UDPPacket [type=0, seq=0, ack=0, fin=0, source=DESKTOP-F8L40PB/192.168.0.106, sourcePort=9000, destination=DESKTOP-F8L40PB/192.168.0.106, destinationPort=9003
-2016-02-18 02:27:39.929 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F: a packet was receive
-2016-02-18 02:27:39.929 [Thread-8] INFO  dataObject.Routeur - RouteurE: On 9005
-2016-02-18 02:27:39.930 [Thread-8] INFO  dataObject.Routeur - RouteurE: Envoie table aux voisins
-2016-02-18 02:27:39.930 [Thread-3] INFO  dataObject.Routeur - RouteurA: On 9003
-2016-02-18 02:27:39.930 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D: a packet was receive
-2016-02-18 02:27:39.926 [Thread-6] INFO  dataObject.Routeur - RouteurB: On 9004
-2016-02-18 02:27:39.931 [Thread-3] INFO  dataObject.Routeur - RouteurA: Sending routing table to B
-2016-02-18 02:27:39.931 [Thread-6] INFO  dataObject.Routeur - RouteurB: Sending routing table to C
-2016-02-18 02:27:39.932 [Thread-5] INFO  dataObject.Routeur - Routeur-C: sendPacket executed
-2016-02-18 02:27:39.932 [Thread-5] INFO  dataObject.Routeur - Routeur-C: sendPacket : UDPPacket [type=0, seq=0, ack=0, fin=0, source=DESKTOP-F8L40PB/192.168.0.106, sourcePort=9002, destination=DESKTOP-F8L40PB/192.168.0.106, destinationPort=9005
-2016-02-18 02:27:39.934 [Thread-3] INFO  dataObject.Routeur - Routeur-A: sendPacket executed
-2016-02-18 02:27:39.934 [Thread-3] INFO  dataObject.Routeur - Routeur-A: sendPacket : UDPPacket [type=0, seq=0, ack=0, fin=0, source=DESKTOP-F8L40PB/192.168.0.106, sourcePort=9000, destination=DESKTOP-F8L40PB/192.168.0.106, destinationPort=9001
-2016-02-18 02:27:39.935 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B: a packet was receive
-2016-02-18 02:27:39.935 [Thread-3] INFO  dataObject.Routeur - RouteurA: On 9001
-2016-02-18 02:27:39.935 [Thread-6] INFO  dataObject.Routeur - Routeur-B: sendPacket executed
-2016-02-18 02:27:39.935 [Thread-3] INFO  dataObject.Routeur - RouteurA: Envoie table aux voisins
-2016-02-18 02:27:39.935 [Thread-6] INFO  dataObject.Routeur - Routeur-B: sendPacket : UDPPacket [type=0, seq=0, ack=0, fin=0, source=DESKTOP-F8L40PB/192.168.0.106, sourcePort=9001, destination=DESKTOP-F8L40PB/192.168.0.106, destinationPort=9002
-2016-02-18 02:27:39.936 [Thread-5] INFO  dataObject.Routeur - RouteurC: On 9005
-2016-02-18 02:27:39.937 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C: a packet was receive
-2016-02-18 02:27:39.937 [Thread-6] INFO  dataObject.Routeur - RouteurB: On 9002
-2016-02-18 02:27:39.937 [Thread-6] INFO  dataObject.Routeur - RouteurB: Envoie table aux voisins
-2016-02-18 02:27:39.937 [Thread-5] INFO  dataObject.Routeur - RouteurC: Sending routing table to D
-2016-02-18 02:27:39.954 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B Fin du thread.
-2016-02-18 02:27:39.962 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C Fin du thread.
-2016-02-18 02:27:39.958 [Thread-5] INFO  dataObject.Routeur - Routeur-C: sendPacket executed
-2016-02-18 02:27:39.970 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F Fin du thread.
-2016-02-18 02:27:39.973 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E Fin du thread.
+2016-02-18 17:29:51.507 [main] INFO  dataObject.Reseau - Reseau: Le reseau dÃ©marre sont initialisation.
+2016-02-18 17:29:51.510 [main] INFO  dataObject.Reseau - Reseau: ouverture des threads pour les routeurs
+2016-02-18 17:29:51.511 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: A
+2016-02-18 17:29:51.511 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur-A a été démarré sur le port: 9000
+2016-02-18 17:29:51.511 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: F
+2016-02-18 17:29:51.512 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: E
+2016-02-18 17:29:51.512 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: D
+2016-02-18 17:29:51.512 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F a été démarré sur le port: 9005
+2016-02-18 17:29:51.513 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: C
+2016-02-18 17:29:51.514 [main] INFO  dataObject.Reseau - Reseau: new runnable pour le routeur: B
+2016-02-18 17:29:51.515 [main] INFO  dataObject.Reseau - Fin de l'initialisation du reseau
+2016-02-18 17:29:51.515 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E a été démarré sur le port: 9004
+2016-02-18 17:29:51.517 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F utilise un routage de type DV (DISTANCE VECTOR)
+2016-02-18 17:29:51.517 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur-A utilise un routage de type DV (DISTANCE VECTOR)
+2016-02-18 17:29:51.518 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E utilise un routage de type DV (DISTANCE VECTOR)
+2016-02-18 17:29:51.518 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D a été démarré sur le port: 9003
+2016-02-18 17:29:51.519 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B a été démarré sur le port: 9001
+2016-02-18 17:29:51.519 [pool-2-thread-8] INFO  dataObject.Hote - Hote-h1: waiting for a packet
+2016-02-18 17:29:51.519 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B utilise un routage de type DV (DISTANCE VECTOR)
+2016-02-18 17:29:51.519 [pool-2-thread-7] INFO  dataObject.Hote - Hote-h2: waiting for a packet
+2016-02-18 17:29:51.520 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C a été démarré sur le port: 9002
+2016-02-18 17:29:51.520 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D utilise un routage de type DV (DISTANCE VECTOR)
+2016-02-18 17:29:51.520 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C utilise un routage de type DV (DISTANCE VECTOR)
+2016-02-18 17:29:51.525 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur: Update Thread Started on D
+2016-02-18 17:29:51.525 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur: Update Thread Started on E
+2016-02-18 17:29:51.526 [pool-2-thread-3] INFO  dataObject.Routeur - Routeur-E: waiting for a packet
+2016-02-18 17:29:51.526 [pool-2-thread-4] INFO  dataObject.Routeur - Routeur-D: waiting for a packet
+2016-02-18 17:29:51.526 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur: Update Thread Started on A
+2016-02-18 17:29:51.526 [pool-2-thread-1] INFO  dataObject.Routeur - Routeur-A: waiting for a packet
+2016-02-18 17:29:51.527 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur: Update Thread Started on C
+2016-02-18 17:29:51.527 [pool-2-thread-5] INFO  dataObject.Routeur - Routeur-C: waiting for a packet
+2016-02-18 17:29:51.528 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur: Update Thread Started on F
+2016-02-18 17:29:51.528 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur: Update Thread Started on B
+2016-02-18 17:29:51.528 [Thread-3] INFO  dataObject.Routeur - RouteurE: Neighbor F added to table
+2016-02-18 17:29:51.528 [pool-2-thread-2] INFO  dataObject.Routeur - Routeur-F: waiting for a packet
+2016-02-18 17:29:51.528 [pool-2-thread-6] INFO  dataObject.Routeur - Routeur-B: waiting for a packet
+2016-02-18 17:29:51.528 [Thread-3] INFO  dataObject.Routeur - RouteurE: Neighbor B added to table
+2016-02-18 17:29:51.529 [Thread-3] INFO  dataObject.Routeur - RouteurE: Neighbor D added to table
+2016-02-18 17:29:51.529 [Thread-3] INFO  dataObject.Routeur - RouteurE: Les voisins ont ete ajoutes a la table
+2016-02-18 17:29:51.528 [Thread-4] INFO  dataObject.Routeur - RouteurD: Neighbor A added to table
+2016-02-18 17:29:51.529 [Thread-5] INFO  dataObject.Routeur - RouteurA: Neighbor D added to table
+2016-02-18 17:29:51.529 [Thread-3] INFO  dataObject.Routeur - Routeur E : Routeur A non voisin
+2016-02-18 17:29:51.529 [Thread-5] INFO  dataObject.Routeur - RouteurA: Neighbor B added to table
+2016-02-18 17:29:51.529 [Thread-3] INFO  dataObject.Routeur - RouteurE : Cout vers A mis a l'infini
+2016-02-18 17:29:51.529 [Thread-5] INFO  dataObject.Routeur - RouteurA: Les voisins ont ete ajoutes a la table
+2016-02-18 17:29:51.530 [Thread-5] INFO  dataObject.Routeur - Routeur A : Routeur A non voisin
+2016-02-18 17:29:51.530 [Thread-3] INFO  dataObject.Routeur - Routeur E : Routeur E non voisin
+2016-02-18 17:29:51.530 [Thread-5] INFO  dataObject.Routeur - RouteurA : Cout vers A mis a l'infini
+2016-02-18 17:29:51.530 [Thread-5] INFO  dataObject.Routeur - Routeur A : Routeur F non voisin
+2016-02-18 17:29:51.530 [Thread-3] INFO  dataObject.Routeur - RouteurE : Cout vers E mis a l'infini
+2016-02-18 17:29:51.530 [Thread-5] INFO  dataObject.Routeur - RouteurA : Cout vers F mis a l'infini
+2016-02-18 17:29:51.530 [Thread-5] INFO  dataObject.Routeur - Routeur A : Routeur E non voisin
+2016-02-18 17:29:51.530 [Thread-3] INFO  dataObject.Routeur - Routeur E : Routeur C non voisin
+2016-02-18 17:29:51.531 [Thread-5] INFO  dataObject.Routeur - RouteurA : Cout vers E mis a l'infini
+2016-02-18 17:29:51.529 [Thread-4] INFO  dataObject.Routeur - RouteurD: Neighbor C added to table
+2016-02-18 17:29:51.531 [Thread-5] INFO  dataObject.Routeur - Routeur A : Routeur C non voisin
+2016-02-18 17:29:51.531 [Thread-3] INFO  dataObject.Routeur - RouteurE : Cout vers C mis a l'infini
+2016-02-18 17:29:51.531 [Thread-5] INFO  dataObject.Routeur - RouteurA : Cout vers C mis a l'infini
+2016-02-18 17:29:51.532 [Thread-5] INFO  dataObject.Routeur - RouteurA:  Initialized table
+2016-02-18 17:29:51.532 [Thread-3] INFO  dataObject.Routeur - RouteurE:  Initialized table
+2016-02-18 17:29:51.532 [Thread-5] INFO  dataObject.Routeur - RouteurA: Envoie table aux voisins
+2016-02-18 17:29:51.532 [Thread-3] INFO  dataObject.Routeur - RouteurE: Envoie table aux voisins
+2016-02-18 17:29:51.532 [Thread-6] INFO  dataObject.Routeur - RouteurC: Neighbor F added to table
+2016-02-18 17:29:51.534 [Thread-6] INFO  dataObject.Routeur - RouteurC: Neighbor B added to table
+2016-02-18 17:29:51.534 [Thread-6] INFO  dataObject.Routeur - RouteurC: Neighbor D added to table
+2016-02-18 17:29:51.534 [Thread-6] INFO  dataObject.Routeur - RouteurC: Les voisins ont ete ajoutes a la table
+2016-02-18 17:29:51.535 [Thread-6] INFO  dataObject.Routeur - Routeur C : Routeur A non voisin
+2016-02-18 17:29:51.531 [Thread-4] INFO  dataObject.Routeur - RouteurD: Neighbor E added to table
+2016-02-18 17:29:51.535 [Thread-6] INFO  dataObject.Routeur - RouteurC : Cout vers A mis a l'infini
+2016-02-18 17:29:51.535 [Thread-4] INFO  dataObject.Routeur - RouteurD: Les voisins ont ete ajoutes a la table
+2016-02-18 17:29:51.535 [Thread-4] INFO  dataObject.Routeur - Routeur D : Routeur F non voisin
+2016-02-18 17:29:51.535 [Thread-6] INFO  dataObject.Routeur - Routeur C : Routeur E non voisin
+2016-02-18 17:29:51.535 [Thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers F mis a l'infini
+2016-02-18 17:29:51.536 [Thread-4] INFO  dataObject.Routeur - Routeur D : Routeur D non voisin
+2016-02-18 17:29:51.536 [Thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers D mis a l'infini
+2016-02-18 17:29:51.536 [Thread-6] INFO  dataObject.Routeur - RouteurC : Cout vers E mis a l'infini
+2016-02-18 17:29:51.536 [Thread-4] INFO  dataObject.Routeur - Routeur D : Routeur B non voisin
+2016-02-18 17:29:51.536 [Thread-6] INFO  dataObject.Routeur - Routeur C : Routeur C non voisin
+2016-02-18 17:29:51.536 [Thread-4] INFO  dataObject.Routeur - RouteurD : Cout vers B mis a l'infini

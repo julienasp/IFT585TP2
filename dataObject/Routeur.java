@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import org.apache.log4j.Logger;
 import protocole.UDPPacket;
@@ -62,7 +63,6 @@ public class Routeur implements Runnable ,  Serializable{
 		this.nomRouteur = nomRouteur;
 		this.port = port;
 	}
-
 
 	/**************************************/
 	/********* GETTER AND SETTER **********/
@@ -188,7 +188,6 @@ public class Routeur implements Runnable ,  Serializable{
 		this.nomRouteur = nomRouteur;
 	}
 
-
 	/**************************************/
 	/********   UTILITY METHODS  **********/
 	/**************************************/
@@ -199,6 +198,7 @@ public class Routeur implements Runnable ,  Serializable{
 	public void retirerArc(String nomArc) {
 		listeArcs.remove(nomArc);
 	}
+	
 	public void ajouterHote(Hote unHote) {
 		listeHotes.put(unHote.getNomHote(), unHote);
 	}
@@ -231,7 +231,6 @@ public class Routeur implements Runnable ,  Serializable{
 		tableRoutageHote.remove(portDestitation);
 	}
 
-
 	/**************************************/
 	/*************   METHODS  *************/
 	/**************************************/
@@ -247,7 +246,6 @@ public class Routeur implements Runnable ,  Serializable{
 		logger.info("Routeur-" + this.getNomRouteur() +": trouverCoutPour(): aucun arc trouvé entre " + routeurA + " et " + routeurB);
 		return -1; // retourne -1 si l'arc n'existe pas
 	}
-
 
 	//Permet de trouver tous les voisins d'un routeur
 	private synchronized Hashtable<String,Routeur> trouverVoisin(String routeurSource){
@@ -266,7 +264,6 @@ public class Routeur implements Runnable ,  Serializable{
 		return routeurVoisin;
 	}
 
-
 	//Permet de  trouver tous les voisisn d'un routeur qui ne sont pas dans la liste N.
 	private synchronized Hashtable<String,Routeur> trouverVoisinNonN(String routeurSource){
 		logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): Permet de trouver les voisins du routeur: " + routeurSource);
@@ -284,7 +281,6 @@ public class Routeur implements Runnable ,  Serializable{
 		logger.info("Routeur-" + this.getNomRouteur() +": trouverVoisinNonN(): les voisins de sont: " + routeurVoisin.toString());
 		return routeurVoisin;
 	}
-
 
 	//Permet de trouver le routeur qui a le côute D(w) le plus bas.
 	private synchronized String trouverPlusPetitDW(Hashtable<String, Routeur> listeW){
@@ -305,7 +301,6 @@ public class Routeur implements Runnable ,  Serializable{
 		return nom;
 	}
 
-
 	//Permet de déduire la table de routage Ls suite au calcul LS.
 	private synchronized void calculerTableRoutageLS(Hashtable<String, Routeur> cloneListe){
 		logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): Suite à l'algorithme utilisé en calculPourLs(), nous déduisons la table de routage LS.");
@@ -324,7 +319,6 @@ public class Routeur implements Runnable ,  Serializable{
 		logger.info("Routeur-" + this.getNomRouteur() +": calculerTableRoutageLS(): table de routage: " + this.getTableRoutageLS().toString());
 	}
 
-
 	//Fonction récursive qui nous permet de trouver le routeur à qui nous devons transferer
 	private synchronized Routeur trouverFoward(Hashtable<String, Routeur> cloneListe, Routeur r){
 		logger.info("Routeur-" + this.getNomRouteur() +": trouverFoward(): Nous cherchons le prédécesseur de: " + r.getNomRouteur());
@@ -332,7 +326,6 @@ public class Routeur implements Runnable ,  Serializable{
 		if(r.getPredecesseurRouteurLS().equals(this.getNomRouteur()) ) return r;        
 		else return trouverFoward(cloneListe,cloneListe.get(r.getPredecesseurRouteurLS()));
 	}
-
 
 	//Permet de trouver le chemin optimale pour l'instance du routeur.
 	private synchronized void calculPourLs(){
@@ -410,7 +403,6 @@ public class Routeur implements Runnable ,  Serializable{
 		calculerTableRoutageLS(cloneListe); 
 	}
 
-
 	//Permet de foward un paquet vers la destination reçu en param
 	private void sendPacket(UDPPacket udpPacket, int destinationPort) {
 		try {
@@ -428,7 +420,6 @@ public class Routeur implements Runnable ,  Serializable{
 			System.out.println("Routeur-" + this.getNomRouteur() + " IO: " + e.getMessage());
 		}
 	}
-
 
 	/**************************************/
 	/*************   THREAD   *************/
@@ -521,13 +512,13 @@ public class Routeur implements Runnable ,  Serializable{
 	{
 		ByteArrayInputStream bis = new ByteArrayInputStream(receivedPacket.getData());
 		ObjectInput in = null;
-		Hashtable <Integer,Routeur> extractedTable; 
+		Hashtable <Integer,String> extractedTable; 
 		try {
 			in = new ObjectInputStream(bis);
 			Object o = in.readObject(); 
-			extractedTable = (Hashtable <Integer,Routeur>)o;
-
-			this.receivedTable=extractedTable;
+			in.close();
+			extractedTable = (Hashtable <Integer,String>)o;
+			translateExtractedTable(extractedTable);
 		} 
 		catch (IOException e) 
 		{
@@ -537,24 +528,30 @@ public class Routeur implements Runnable ,  Serializable{
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			try {
-				bis.close();
-			} catch (IOException ex) {
-				// ignore close exception
-			}
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException ex) {
-				// ignore close exception
-
-			}
 		}
 	}
 
+	private void translateExtractedTable(Hashtable<Integer, String> extractedTable) {
+		// TODO Auto-generated method stub
+		Enumeration <Integer> numb = extractedTable.keys();
+		Enumeration <String> numbString = extractedTable.elements();
+		Hashtable<Integer, Routeur> translatedTable = new Hashtable<Integer, Routeur> (); 
+		
+		while(numb.hasMoreElements() && numbString.hasMoreElements())
+		{
+			Integer currentPort = numb.nextElement();
+			String currentRouteurName = numbString.nextElement();
+			Routeur currentRouteur = listeRouteurs.get(currentRouteurName);
+			
+			translatedTable.put(currentPort, currentRouteur);
+		}
+		
+		this.receivedTable=translatedTable;
+	}
+
+	
 	@Override
+
 	public void run() {
 		start();	
 	}  

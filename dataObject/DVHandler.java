@@ -30,12 +30,10 @@ public class DVHandler implements Runnable {
 	private Hashtable <Integer,Routeur> bestPath ;
 	private Hashtable <String,Arc> ArcToVoisins = new Hashtable<String,Arc>();
 	private int coutInfini = 1000000;
-	private UDPPacket giftToNeighbor;
-	private byte[] yourBytes;
-
+	private UDPPacket giftToNeighbor = new UDPPacket (0,0,0);
+	private Hashtable <Integer,String> toSend  = new Hashtable<Integer,String> ();
 
 	private static final Logger logger = Logger.getLogger(Routeur.class);
-
 
 	public DVHandler(Routeur currentRouteur)
 	{
@@ -54,9 +52,15 @@ public class DVHandler implements Runnable {
 	public void construireTable(Hashtable<Integer, Routeur> tableRecue, String nomEnvoyeur)
 	{
 		//Voisin ayant envoye sa table
+		Enumeration<Arc>testEnum = ArcToVoisins.elements();
+		
+		while(testEnum.hasMoreElements())
+		{
+			Arc curreeeent = testEnum.nextElement();
+		}
 		Arc currentVoisinArc = ArcToVoisins.get(nomEnvoyeur);
 		Routeur currentVoisin ;
-
+		
 		if(currentVoisinArc.getRouteurA().getNomRouteur() == nomEnvoyeur)
 		{
 			currentVoisin = currentVoisinArc.getRouteurA();
@@ -67,23 +71,23 @@ public class DVHandler implements Runnable {
 			currentVoisin = currentVoisinArc.getRouteurB();
 			logger.info("Routeur: Neighbor is " + currentVoisinArc.getRouteurB().getNomRouteur());
 		}
-
 		//ON Parcout les elements de la table recue
 		Enumeration<Routeur> nb = tableRecue.elements();
 		while(nb.hasMoreElements()) 
 		{
-			Object key = nb.nextElement(); 
+			Routeur key = nb.nextElement(); 
 			//Routeur vers lequel on rajoute un chemin
-			Routeur currentNew = (Routeur)tableRecue.get(key);
-
-			if ( currentNew.getPort() != myRouteur.getPort() && this.bestPath.containsKey(key) ==false)
+			Routeur currentNew = (Routeur)tableRecue.get(key.getPort());
+			
+			if ( currentNew.getPort() != myRouteur.getPort() && this.bestPath.containsKey(key.getPort()) ==false)
 			{
 				this.bestPath.put(currentNew.getPort(), currentNew);
-				logger.info("Routeur: Chemin non existant. Chemin ajoute vers " + currentNew.getNomRouteur());
+				logger.info("Routeur"+myRouteur.getNomRouteur()+" : Chemin non existant. Chemin ajoute vers " + currentNew.getNomRouteur());
 			}
 
-			else if (currentNew.getPort() != myRouteur.getPort() && this.bestPath.containsKey(key) ==true )
+			else if (currentNew.getPort() != myRouteur.getPort() && this.bestPath.containsKey(key.getPort()) ==true )
 			{
+				logger.info("Routeur: JE BUGGGGGGGGGGGGGGG " + myRouteur.getNomRouteur());
 				if( currentVoisinArc.getCout() + this.coutRouteur.get(currentNew)  < this.coutRouteur.get(currentNew))
 				{
 					this.bestPath.put(currentNew.getPort(), currentVoisin);
@@ -127,14 +131,14 @@ public class DVHandler implements Runnable {
 
 	public void trouverVoisin()
 	{
-		//touslesArcs = monReseau.getListeArcs();
 		Enumeration<Arc> nb = myRouteur.getListeArcs().elements();
-
 		while(nb.hasMoreElements()) 
 		{
+			//Parcourt tous les arcs et trouve les voisins
 			Arc key = nb.nextElement(); 
 			Arc current = (Arc)myRouteur.getListeArcs().get(key.getNomArc());
 
+			//Si notre routeur est le routeur A alors le voisin est B
 			if ( myRouteur.getNomRouteur() == current.getRouteurA().getNomRouteur() )
 			{
 				this.ArcToVoisins.put(current.getRouteurB().getNomRouteur(), current);
@@ -143,11 +147,12 @@ public class DVHandler implements Runnable {
 				logger.info("Routeur"+ myRouteur.getNomRouteur() + ": Neighbor " + current.getRouteurB().getNomRouteur()+ " added to table");
 			}
 
+			//Si notre routeur est le routeur B alors le voisin est A
 			else if (myRouteur.getNomRouteur() == current.getRouteurB().getNomRouteur()  )
 			{
 				this.ArcToVoisins.put(current.getRouteurA().getNomRouteur(), current);
 				this.bestPath.put(current.getRouteurA().getPort(), current.getRouteurA());
-				this.coutRouteur.put(current.getRouteurB(),current.getCout());
+				this.coutRouteur.put(current.getRouteurA(),current.getCout());
 				logger.info("Routeur" + myRouteur.getNomRouteur() + ": Neighbor " + current.getRouteurA().getNomRouteur()+ " added to table");
 			}
 		}
@@ -166,8 +171,15 @@ public class DVHandler implements Runnable {
 			{
 				giftToNeighbor = new UDPPacket (0,currentRouteur.getPort(),myRouteur.getPort());
 				logger.info("Routeur" + myRouteur.getNomRouteur() + ": Sending routing table to " + currentRouteur.getNomRouteur());
-
-				construirePacket(bestPath);
+				
+				//Tranlater la table de routage en table d'elements serialisable
+				remplirToSend(this.bestPath);
+				
+				
+				// On construit le paquet contenant la table a envoyer
+				construirePacket(toSend);
+				
+				//On envoie le packet avec la table
 				sendPacket(giftToNeighbor,currentRouteur.getPort());
 				logger.info("Routeur" + myRouteur.getNomRouteur() + ": On " + currentRouteur.getPort());
 			}
@@ -190,10 +202,20 @@ public class DVHandler implements Runnable {
 			}
 			else
 			{
+				Enumeration<Routeur>testBP = bestPath.elements();
+				while(testBP.hasMoreElements())
+				{
+					Routeur test=testBP.nextElement();
+					logger.info("Routeur ISSSSS"  + myRouteur.getNomRouteur() + " : Neighbor is " + test.getNomRouteur());
+				}
+				
+				/*logger.info("Routeur"+myRouteur.getNomRouteur()+"Current New.getName()" +currentNew.getNomRouteur()+"  : CurrentNew.getPort " +currentNew.getPort()
+				+" myRouteur.getPort()" + myRouteur.getPort()+" this.bestPath.containsKey" + this.bestPath.containsKey(key.getPort()));
+				*/
+				trouverVoisin();
 				nomEnvoyeur = this.bestPath.get(myRouteur.getPortVoisin()).getNomRouteur();
 				construireTable(this.neighborTable,this.nomEnvoyeur);
 			}
-
 
 		}
 		catch (Exception e) 
@@ -210,28 +232,45 @@ public class DVHandler implements Runnable {
 		try {
 			out.writeObject(Object);
 			out.close();
-			yourBytes = bos.toByteArray();
-			
+			//yourBytes = bos.toByteArray();
+			giftToNeighbor.setData(bos.toByteArray())  ;
+
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			System.out.println("Routeur-" + myRouteur.getNomRouteur()+"" + ex.getMessage());
 		}
 		//yourBytes=Marshallizer.marshallize(Object);
 	}
-
 
 	private void sendPacket(UDPPacket udpPacket, int destinationPort) {
 		try {
 			logger.info("Routeur-" + myRouteur.getNomRouteur() + ": sendPacket executed");
 			logger.info("Routeur-" + myRouteur.getNomRouteur() + ": sendPacket : " + udpPacket.toString());
-			DatagramPacket datagram = new DatagramPacket(yourBytes,yourBytes.length, InetAddress.getLocalHost(), destinationPort); // port de la passerelle par default
+			byte[] packetData = Marshallizer.marshallize(udpPacket);
+			DatagramPacket datagram = new DatagramPacket(packetData,packetData.length, InetAddress.getLocalHost(), destinationPort); // port de la passerelle par default
 			myRouteur.getRouteurSocket().send(datagram); // émission non-bloquante
 		} catch (SocketException e) {
 			System.out.println("Routeur-" + myRouteur.getNomRouteur() + " Socket: " + e.getMessage());
 		} catch (IOException e) {
-			System.out.println("Routeur-" + myRouteur.getNomRouteur() + " IO: " + e.getMessage());
+			//System.out.println("Routeur-" + myRouteur.getNomRouteur() + " IO: " + e.getMessage());
 		}
 
 
 	}
-}
 
+	private void remplirToSend(Hashtable<Integer,Routeur> tableToTranslate)
+	{
+		Enumeration<Routeur> num = tableToTranslate.elements();
+		Enumeration <Integer> keynum = tableToTranslate.keys();
+
+		while(num.hasMoreElements() && keynum.hasMoreElements())
+		{
+			
+			Routeur key = num.nextElement();
+			Integer value = keynum.nextElement();
+			
+			Routeur currentElement = (Routeur)tableToTranslate.get(key.getPort());
+			
+			toSend.put(value, currentElement.getNomRouteur());
+		}
+	}
+}
