@@ -4,6 +4,7 @@
  */
 package dataObject;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -11,15 +12,17 @@ import org.apache.log4j.Logger;
 import protocole.UDPPacket;
 import utils.Marshallizer;
 
-public class Hote implements Runnable{
+public class Hote implements Runnable, Serializable{
     /**************************************/
     /********* PRIVATE ATTRIBUTS **********/
     /**************************************/
+	private static final long serialVersionUID = 2622663736791338175L;
+	
     private String nomHote;
     private int port;
     private int passerellePort;
-    private DatagramSocket hoteSocket = null;
-    private DatagramPacket packetReceive;
+    private transient DatagramSocket hoteSocket = null;
+    private transient DatagramPacket packetReceive;
     
     //Private attribut for logging purposes
     private static final Logger logger = Logger.getLogger(Hote.class);

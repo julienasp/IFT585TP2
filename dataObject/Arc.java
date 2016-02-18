@@ -3,10 +3,15 @@
  * @author JUASP-G73-Android
  */
 package dataObject;
-public class Arc {
+
+import java.io.Serializable;
+
+public class Arc implements Serializable{
     /**************************************/
     /********* PRIVATE ATTRIBUTS **********/
     /**************************************/
+	private static final long serialVersionUID = 2622663736791338175L;
+	
     private String nomArc;
     private Routeur routeurA;
     private Routeur routeurB;
