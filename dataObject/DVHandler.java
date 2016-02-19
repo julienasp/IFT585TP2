@@ -51,8 +51,7 @@ public class DVHandler implements Runnable {
             this.routeurVoisin = trouverVoisin(currentRouteur.getNomRouteur());
     }    
 
-    public DVHandler(UDPPacket packetRecu, Routeur currentRouteur){
-            logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": Dans constructeur: ");
+    public DVHandler(UDPPacket packetRecu, Routeur currentRouteur){   
 
             // TODO Auto-generated constructor stub
             this.packetRecu = packetRecu;
@@ -236,7 +235,7 @@ public class DVHandler implements Runnable {
     
     //Permet de mettre à jour notre table
     private void updateTable(){        
-        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() est en cours d'éxécuté.");
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() est en cours d'éxécution.");
     
         Routeur routeurVoisinExpediteur = trouverRouteurViaPort(this.packetRecu.getSourcePort());
  
@@ -318,9 +317,9 @@ public class DVHandler implements Runnable {
                 }
                 else
                 {
-                   /* logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": tableRoutageDV est non vide, donc updateTable() sera appelé. "); 
+                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": tableRoutageDV est non vide, donc updateTable() sera appelé. "); 
 
-                    //Il existe des routes pour le routeur courant                        
+                    /*//Il existe des routes pour le routeur courant                        
                     updateTable();
 
                     //Si la table a été modifié on envoit les modifications aux voisins
@@ -330,7 +329,7 @@ public class DVHandler implements Runnable {
             }
             catch (Exception e) 
             {
-                    System.out.println("IO: " + e.getMessage());
+                    System.out.println("DVHandler-EXCEPTION-"+ this.myRouteur.getNomRouteur() +": " + e.getMessage());
             }
             finally {
                 logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": Fin du thread DVHandler. ");                

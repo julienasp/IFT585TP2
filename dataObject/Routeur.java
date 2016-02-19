@@ -469,8 +469,7 @@ public class Routeur implements Runnable {
                 logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type DV (DISTANCE VECTOR)");
                 Thread DVThread = new Thread(new DVHandler(this));
                 DVThread.start();
-                logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");
-                       
+                logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");                       
            }             
             
            //Début de la boucle pour recevoir des paquets
@@ -517,8 +516,7 @@ public class Routeur implements Runnable {
                     if(packet.isForUpdate()){
                         logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type update");
                         //Commencer un thread de DVHandler
-                        Thread DVThread = new Thread(new DVHandler(packet, this));
-                        logger.info("Routeur-" + this.getNomRouteur() + ": AVANT START");
+                        Thread DVThread = new Thread(new DVHandler(packet,this));                      
                         DVThread.start();
 			logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");
                     }
