@@ -481,9 +481,10 @@ public class Routeur implements Runnable {
                     logger.info("Routeur-" + this.getNomRouteur() + ": a packet was receive");                   
                     
                     UDPPacket packet = (UDPPacket) Marshallizer.unmarshall(packetReceive);
+                    logger.info("Routeur-" + this.getNomRouteur() +" contenu est :" + packet.toString());
                     
                     //Paquet de type FOWARD
-                    if(packet.getType() == UDPPacket.FOWARD){
+                    if(packet.isForFoward()){
                         
                         logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type foward");
                         logger.info("Routeur-" + this.getNomRouteur() + ": on regarde si la destination est dans notre table d'hôte");
@@ -514,7 +515,7 @@ public class Routeur implements Runnable {
                         logger.info("Routeur-" + this.getNomRouteur() + " le packet reçu à été bien été transmis.");   
                     }
                     //Paquet de type UPDATE pour un DVHandler
-                    if(packet.getType() == UDPPacket.UPDATE){
+                    if(packet.isForUpdate()){
                         //Commencer un thread de DVHandler
                         Thread DVThread = new Thread(new DVHandler(packet, this));
                         DVThread.start();
@@ -522,8 +523,12 @@ public class Routeur implements Runnable {
                     }
             }while (true);
 
-        } catch (Exception e) {
-                System.out.println("IO: " + e.getMessage());
+        }catch (SocketException e) {
+                System.out.println("SocketException-Routeur-" + this.getNomRouteur() + " " + e.getMessage());
+        }catch (IOException e) {
+                System.out.println("IOException-Routeur-" + this.getNomRouteur() + " " + e.getMessage());
+        }catch (Exception e) {
+                System.out.println("Exception-Routeur-" + this.getNomRouteur() + " " + e.getMessage());
         }
         finally {
                 logger.info("Routeur-" + this.getNomRouteur() +" Fin du thread.");                

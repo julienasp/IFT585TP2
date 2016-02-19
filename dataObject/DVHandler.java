@@ -16,6 +16,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.log4j.Logger;
 import protocole.UDPPacket;
 import utils.Marshallizer;
@@ -298,20 +300,30 @@ public class DVHandler implements Runnable {
             try
             {
                 //Si aucune route est présente dans notre table de routage. 
-                if ( tableRoutageDV.isEmpty())
-                    {	
+                if ( tableRoutageDV.isEmpty()){	
+                        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": tableRoutageDV est vide, donc initTable() sera appelé. "); 
                         //Aucune route présente dans la table, alors nous initialisons le routeur pour DV.
-                        initTable();				
-                        sendTableToNeighbours();				
-                    }
-                    else
-                    {
-                        //Il existe des routes pour le routeur courant                        
-                        updateTable();
-                        
-                        //Si la table a été modifié on envoit les modifications aux voisins
-                        if(tableRoutageDVWasEdited) sendTableToNeighbours();
-                    }
+                        initTable();
+                        Thread.currentThread().yield();
+                         //Timer pour l'attente du routage
+                        Timer WaitBeforeSendTimer = new Timer(); //Timer pour les timeouts
+                        WaitBeforeSendTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                sendTableToNeighbours();
+                            }
+                          }, 3000);                        				
+                }
+                else
+                {
+                   /* logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": tableRoutageDV est non vide, donc updateTable() sera appelé. "); 
+
+                    //Il existe des routes pour le routeur courant                        
+                    updateTable();
+
+                    //Si la table a été modifié on envoit les modifications aux voisins
+                    if(tableRoutageDVWasEdited) sendTableToNeighbours();*/
+                }
 
             }
             catch (Exception e) 
