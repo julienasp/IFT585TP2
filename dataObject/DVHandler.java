@@ -27,13 +27,12 @@ public class DVHandler implements Runnable {
     /********* PRIVATE ATTRIBUTS **********/
     /**************************************/
     private Routeur myRouteur;
-    private String nomEnvoyeur;
     private Hashtable<String,Routeur> routeurVoisin;
     private UDPPacket packetRecu;    
     private Hashtable <Integer,Routeur> neighborTable;	
-    private Hashtable <Routeur,Integer> coutRoutageDV;
+    private Hashtable <String,Integer> coutRoutageDV;
     private Hashtable <Integer,Routeur> tableRoutageDV ;
-    private Hashtable <String,Arc> ArcToVoisins = new Hashtable<String,Arc>();
+    private boolean tableRoutageDVWasEdited =  false;
     
     //Private attribut for logging purposes
     private static final Logger logger = Logger.getLogger(DVHandler.class);
@@ -117,43 +116,51 @@ public class DVHandler implements Runnable {
     private void updateTable(){        
         logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() est en cours d'éxécuté.");
     
-        Routeur routeurExpediteur = trouverRouteurViaPort(this.packetRecu.getSourcePort());
-            
+        Routeur routeurVoisinExpediteur = trouverRouteurViaPort(this.packetRecu.getSourcePort());
+        
+        //variable qui va nous permetre de savoir si nous envoyons au voison ou pas
+         
+        
         //On parcours la table reçu
         for (Routeur routeur : this.neighborTable.values()) {
             
+            //Cout du routeur courant vers son voisin
+            Integer coutVersVoisin = this.coutRoutageDV.get(routeurVoisinExpediteur.getNomRouteur());
+                
+            //Cout du routeurVoisin vers la nouvelle destination
+            Integer coutVoisinVersDestination = routeurVoisinExpediteur.getCoutRouteurDV().get(routeur.getPort());
             
-        }
-            //ON Parcout les elements de la table recue
-            Enumeration<Routeur> nb = tableRecue.elements();
-            while(nb.hasMoreElements()) 
-            {
-                    Routeur key = nb.nextElement(); 
-                    //Routeur vers lequel on rajoute un chemin
-                    Routeur currentNew = (Routeur)tableRecue.get(key.getPort());
-
-                    if ( currentNew.getPort() != myRouteur.getPort() && this.tableRoutageDV.containsKey(key.getPort()) ==false)
-                    {
-                            this.tableRoutageDV.put(currentNew.getPort(), currentNew);
-                            logger.info("Routeur"+myRouteur.getNomRouteur()+" : Chemin non existant. Chemin ajoute vers " + currentNew.getNomRouteur());
-                    }
-
-                    else if (currentNew.getPort() != myRouteur.getPort() && this.tableRoutageDV.containsKey(key.getPort()) ==true )
-                    {
-                            logger.info("Routeur: JE BUGGGGGGGGGGGGGGG " + myRouteur.getNomRouteur());
-                            if( currentVoisinArc.getCout() + this.coutRoutageDV.get(currentNew)  < this.coutRoutageDV.get(currentNew))
-                            {
-                                    this.tableRoutageDV.put(currentNew.getPort(), currentVoisin);
-                                    logger.info("Routeur: Cout plus petit que cout existant.Chemin ajoute vers " + currentNew.getNomRouteur());
-                            }
-                            else
-                            {
-                                    logger.info("Routeur: Pas de chemin ajoute vers "  + currentNew.getNomRouteur() +" Cout plus eleve que cout existant? ");
-                            }
-                    }
+            //On valide si l'entrée est présente dans notre table
+            if(!this.tableRoutageDV.containsKey(routeur.getPort())){
+                
+                //L'entrée n'est pas présente alors on l'ajoutons avec son côut
+                this.tableRoutageDV.put(routeur.getPort(), routeurVoisinExpediteur);                
+                
+                //Nous ajoutons le côuts a notre table de cout
+                //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
+                this.coutRoutageDV.put(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
+                
+                //On signale quon a fait une modification
+                tableRoutageDVWasEdited = true;
             }
-            logger.info("Routeur:" + myRouteur.getNomRouteur()+ " Fin mise a jour de tables");
-            /* FIN MISE A JOUR TABLES */
+            else{
+                //L'entrée existe déja dans notre table de routage  
+                
+                //On vérifie si notre côut courant est supérieur à celui reçu
+                if(this.coutRoutageDV.get(routeur.getNomRouteur()) > coutVersVoisin + coutVoisinVersDestination ){
+                    //Le coût de notre routeur vers la destination est supérieur, alors on le remplace
+                    
+                    //L'entrée n'est pas présente alors on l'ajoutons avec son côut
+                    this.tableRoutageDV.replace(routeur.getPort(), routeurVoisinExpediteur); 
+                    
+                    //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
+                    this.coutRoutageDV.replace(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
+
+                    //On signale quon a fait une modification
+                    tableRoutageDVWasEdited = true;
+                }
+            }            
+        }            
     }
 
     
@@ -167,7 +174,7 @@ public class DVHandler implements Runnable {
                 this.tableRoutageDV.put(routeur.getPort(), routeur);
 
                 //Ajout du côut initiale vers nos routeur voisin
-                this.coutRoutageDV.put(routeur,trouverCoutPour(this.myRouteur.getNomRouteur(),routeur.getNomRouteur()));
+                this.coutRoutageDV.put(routeur.getNomRouteur(),trouverCoutPour(this.myRouteur.getNomRouteur(),routeur.getNomRouteur()));
             }
             logger.info("Routeur:" + myRouteur.getNomRouteur()+ " Initialisation de la table de routage DV terminé.");
     }

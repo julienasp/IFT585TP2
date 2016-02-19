@@ -32,7 +32,7 @@ public class Routeur implements Runnable {
     private Hashtable<Integer,Routeur> tableRoutageLS = new Hashtable<Integer,Routeur>();
     private Hashtable<Integer,Hote> tableRoutageHote = new Hashtable<Integer,Hote>();
     private Hashtable<Integer,Routeur> tableRoutageDV = new Hashtable<Integer,Routeur>();
-    private Hashtable <Routeur,Integer> coutRoutageDV = new Hashtable<Routeur,Integer>();
+    private Hashtable <String,Integer> coutRoutageDV = new Hashtable<String,Integer>();
     private Hashtable <Integer,Routeur> receivedTable;
 
     //Private attribut for logging purposes
@@ -171,11 +171,11 @@ public class Routeur implements Runnable {
         this.tableRoutageDV = tableRoutageDV;
     }
 
-    public Hashtable<Routeur, Integer> getCoutRouteurDV() {
+    public Hashtable<String, Integer> getCoutRouteurDV() {
         return coutRoutageDV;
     }
 
-    public void setCoutRouteurDV(Hashtable<Routeur, Integer> coutRouteurDV) {
+    public void setCoutRouteurDV(Hashtable<String, Integer> coutRouteurDV) {
         this.coutRoutageDV = coutRouteurDV;
     }   
 
@@ -230,7 +230,7 @@ public class Routeur implements Runnable {
        tableRoutageDV.remove(portDestitation);
     }
     
-    public synchronized void ajouterCoutRoutageDV(Routeur fowardRouter,int cout) {
+    public synchronized void ajouterCoutRoutageDV(String fowardRouter,int cout) {
        coutRoutageDV.put(fowardRouter, cout);
     }
     
