@@ -31,6 +31,9 @@ public class Routeur implements Runnable {
     private Hashtable<String, Hote> listeHotes = new Hashtable<String,Hote>();
     private Hashtable<Integer,Routeur> tableRoutageLS = new Hashtable<Integer,Routeur>();
     private Hashtable<Integer,Hote> tableRoutageHote = new Hashtable<Integer,Hote>();
+    private Hashtable<Integer,Routeur> tableRoutageDV = new Hashtable<Integer,Routeur>();
+    private Hashtable <Routeur,Integer> coutRoutageDV = new Hashtable<Routeur,Integer>();
+    private Hashtable <Integer,Routeur> receivedTable;
 
     //Private attribut for logging purposes
     private static final Logger logger = Logger.getLogger(Routeur.class);
@@ -159,6 +162,30 @@ public class Routeur implements Runnable {
     public void setNomRouteur(String nomRouteur) {
         this.nomRouteur = nomRouteur;
     }
+
+    public Hashtable<Integer, Routeur> getTableRoutageDV() {
+        return tableRoutageDV;
+    }
+
+    public void setTableRoutageDV(Hashtable<Integer, Routeur> tableRoutageDV) {
+        this.tableRoutageDV = tableRoutageDV;
+    }
+
+    public Hashtable<Routeur, Integer> getCoutRouteurDV() {
+        return coutRoutageDV;
+    }
+
+    public void setCoutRouteurDV(Hashtable<Routeur, Integer> coutRouteurDV) {
+        this.coutRoutageDV = coutRouteurDV;
+    }   
+
+    public Hashtable<Integer, Routeur> getReceivedTable() {
+        return receivedTable;
+    }
+
+    public void setReceivedTable(Hashtable<Integer, Routeur> receivedTable) {
+        this.receivedTable = receivedTable;
+    } 
     
     
     /**************************************/
@@ -193,6 +220,22 @@ public class Routeur implements Runnable {
     
     public void retirerRouteTableRoutageLS(int portDestitation) {
        tableRoutageLS.remove(portDestitation);
+    }
+    
+    public void ajouterRouteTableRoutageDV(int portDestitation,Routeur fowardRouter) {
+       tableRoutageDV.put(portDestitation, fowardRouter);
+    }
+    
+    public void retirerRouteTableRoutageDV(int portDestitation) {
+       tableRoutageDV.remove(portDestitation);
+    }
+    
+    public synchronized void ajouterCoutRoutageDV(Routeur fowardRouter,int cout) {
+       coutRoutageDV.put(fowardRouter, cout);
+    }
+    
+    public synchronized void retirerCoutRoutageDV(Routeur router) {
+       coutRoutageDV.remove(router);
     }
     
     public void ajouterHoteTableRoutage(int portDestitation,Hote unHote) {
@@ -423,10 +466,10 @@ public class Routeur implements Runnable {
            }
            if(typeRoutage == Reseau.DVROUTING){
                //Initiation des tables de routage pour DV
-               logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type DV (DISTANCE VECTOR)");
-               /***************************************/ 
-               /*******  TON CODE POUR LE INIT   ******/ 
-               /***************************************/ 
+                logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type DV (DISTANCE VECTOR)");
+                Thread DVThread = new Thread(new DVHandler(this));
+                DVThread.start();
+                logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");
                        
            }             
             
