@@ -129,7 +129,7 @@ public class StartPoint {
                         monReseau.stop();
                         sc.close();
                     }
-                  }, 150000); 
+                  }, 50000); 
 	}
 
 }
