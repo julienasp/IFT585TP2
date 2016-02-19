@@ -28,7 +28,8 @@ public class DVHandler implements Runnable {
     /**************************************/
     private Routeur myRouteur;
     private String nomEnvoyeur;
-    Hashtable<String,Routeur> routeurVoisin;
+    private Hashtable<String,Routeur> routeurVoisin;
+    private UDPPacket packetRecu;
     private Hashtable <Integer,Routeur> neighborTable;	
     private Hashtable <Routeur,Integer> coutRoutageDV;
     private Hashtable <Integer,Routeur> tableRoutageDV ;
@@ -49,10 +50,11 @@ public class DVHandler implements Runnable {
             this.routeurVoisin = trouverVoisin(currentRouteur.getNomRouteur());
     }    
 
-    public DVHandler(Hashtable<Integer, Routeur> receivedDVTable, Routeur currentRouteur)
+    public DVHandler(UDPPacket packetRecu, Routeur currentRouteur)
     {
             // TODO Auto-generated constructor stub
-            this.neighborTable = receivedDVTable;
+            this.packetRecu = packetRecu;
+            this.neighborTable = traduireTableRoutageDVPourTransert((Hashtable <Integer,String>) utils.Marshallizer.unmarshallHashtableIntegerString(packetRecu));
             this.myRouteur = currentRouteur;
             this.tableRoutageDV=currentRouteur.getTableRoutageDV();
             this.coutRoutageDV = myRouteur.getCoutRouteurDV();
@@ -204,29 +206,54 @@ public class DVHandler implements Runnable {
     //Permet de fabriquer un hashtable qui est stream friendly
     private Hashtable<Integer,String> tableRoutageDVPourTransfert(){
 
-            logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() executed");
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() executed");
 
-            Hashtable <Integer,String> tablePourExport = new Hashtable<Integer,String>();
+        Hashtable <Integer,String> tablePourExport = new Hashtable<Integer,String>();
 
-            //Création d'un set pour parcourir la Hashtable
-            Set set = this.tableRoutageDV.entrySet();
+        //Création d'un set pour parcourir la Hashtable
+        Set set = this.tableRoutageDV.entrySet();
 
-            //Création d'un iterator pour parcourir notre set
-            Iterator it = set.iterator();
+        //Création d'un iterator pour parcourir notre set
+        Iterator it = set.iterator();
 
-            //Boucle while qui parcours le set.
-            while (it.hasNext()) {
-              Map.Entry entry = (Map.Entry) it.next();
+        //Boucle while qui parcours le set.
+        while (it.hasNext()) {
+          Map.Entry entry = (Map.Entry) it.next();
 
-              Routeur tempRouteur = (Routeur) entry.getValue();
-              Integer tempKey = (Integer) entry.getKey();
+          Routeur tempRouteur = (Routeur) entry.getValue();
+          Integer tempKey = (Integer) entry.getKey();
 
-              //On ajoute l'élément à la table pour l'export
-              tablePourExport.put(tempKey, tempRouteur.getNomRouteur());
-            }
-            logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() un Hashtable stream friendly a été crée.");
-            return tablePourExport;
+          //On ajoute l'élément à la table pour l'export
+          tablePourExport.put(tempKey, tempRouteur.getNomRouteur());
+        }
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() un Hashtable stream friendly a été crée.");
+        return tablePourExport;
+    }
+    
+    
+    //Permet de traduire la table recu afin de retrouver nos référence vers les routeurs.
+    private Hashtable<Integer,Routeur> traduireTableRoutageDVPourTransert(Hashtable<Integer, String> extractedTable) {
+	logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": traduireTableRoutageDVPourTransert() executed");	
+        Hashtable <Integer,Routeur> tablePourUpdate = new Hashtable<Integer,Routeur>();
 
+        //Création d'un set pour parcourir la Hashtable
+        Set set = this.tableRoutageDV.entrySet();
+
+        //Création d'un iterator pour parcourir notre set
+        Iterator it = set.iterator();
+
+        //Boucle while qui parcours le set.
+        while (it.hasNext()) {
+          Map.Entry entry = (Map.Entry) it.next();
+          String tempRouterName = (String) entry.getValue();
+          Integer tempPort = (Integer) entry.getKey();
+          Routeur tempRouteur = this.myRouteur.getListeRouteurs().get(tempRouterName);
+
+          tablePourUpdate.put(tempPort, tempRouteur);
+
+        }
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": la traduction à bien été effectué.");
+        return tablePourUpdate;
     }
 
     
