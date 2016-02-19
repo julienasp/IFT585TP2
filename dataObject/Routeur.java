@@ -31,6 +31,9 @@ public class Routeur implements Runnable {
     private Hashtable<String, Hote> listeHotes = new Hashtable<String,Hote>();
     private Hashtable<Integer,Routeur> tableRoutageLS = new Hashtable<Integer,Routeur>();
     private Hashtable<Integer,Hote> tableRoutageHote = new Hashtable<Integer,Hote>();
+    private Hashtable<Integer,Routeur> tableRoutageDV = new Hashtable<Integer,Routeur>();
+    private Hashtable <String,Integer> coutRoutageDV = new Hashtable<String,Integer>();
+    private Hashtable <Integer,Routeur> receivedTable;
 
     //Private attribut for logging purposes
     private static final Logger logger = Logger.getLogger(Routeur.class);
@@ -159,6 +162,30 @@ public class Routeur implements Runnable {
     public void setNomRouteur(String nomRouteur) {
         this.nomRouteur = nomRouteur;
     }
+
+    public Hashtable<Integer, Routeur> getTableRoutageDV() {
+        return tableRoutageDV;
+    }
+
+    public void setTableRoutageDV(Hashtable<Integer, Routeur> tableRoutageDV) {
+        this.tableRoutageDV = tableRoutageDV;
+    }
+
+    public Hashtable<String, Integer> getCoutRouteurDV() {
+        return coutRoutageDV;
+    }
+
+    public void setCoutRouteurDV(Hashtable<String, Integer> coutRouteurDV) {
+        this.coutRoutageDV = coutRouteurDV;
+    }   
+
+    public Hashtable<Integer, Routeur> getReceivedTable() {
+        return receivedTable;
+    }
+
+    public void setReceivedTable(Hashtable<Integer, Routeur> receivedTable) {
+        this.receivedTable = receivedTable;
+    } 
     
     
     /**************************************/
@@ -193,6 +220,22 @@ public class Routeur implements Runnable {
     
     public void retirerRouteTableRoutageLS(int portDestitation) {
        tableRoutageLS.remove(portDestitation);
+    }
+    
+    public void ajouterRouteTableRoutageDV(int portDestitation,Routeur fowardRouter) {
+       tableRoutageDV.put(portDestitation, fowardRouter);
+    }
+    
+    public void retirerRouteTableRoutageDV(int portDestitation) {
+       tableRoutageDV.remove(portDestitation);
+    }
+    
+    public synchronized void ajouterCoutRoutageDV(String fowardRouter,int cout) {
+       coutRoutageDV.put(fowardRouter, cout);
+    }
+    
+    public synchronized void retirerCoutRoutageDV(Routeur router) {
+       coutRoutageDV.remove(router);
     }
     
     public void ajouterHoteTableRoutage(int portDestitation,Hote unHote) {
@@ -423,11 +466,10 @@ public class Routeur implements Runnable {
            }
            if(typeRoutage == Reseau.DVROUTING){
                //Initiation des tables de routage pour DV
-               logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type DV (DISTANCE VECTOR)");
-               /***************************************/ 
-               /*******  TON CODE POUR LE INIT   ******/ 
-               /***************************************/ 
-                       
+                logger.info("Routeur-" + this.getNomRouteur() + " utilise un routage de type DV (DISTANCE VECTOR)");
+                Thread DVThread = new Thread(new DVHandler(this));
+                DVThread.start();
+                logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");                       
            }             
             
            //Début de la boucle pour recevoir des paquets
@@ -440,7 +482,7 @@ public class Routeur implements Runnable {
                     UDPPacket packet = (UDPPacket) Marshallizer.unmarshall(packetReceive);
                     
                     //Paquet de type FOWARD
-                    if(packet.getType() == UDPPacket.FOWARD){
+                    if(packet.isForFoward()){
                         
                         logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type foward");
                         logger.info("Routeur-" + this.getNomRouteur() + ": on regarde si la destination est dans notre table d'hôte");
@@ -454,15 +496,11 @@ public class Routeur implements Runnable {
                         }
                         else
                         {
-                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD."); 
-                            /********************************************************************************************************************************/ 
-                            /*******  IL VA FALLOIR MODIFIER LA VALEUR ELSE POUR portDestination et destinataire, afin d'utiliser la tableRoutageDV   *******/ 
-                            /********************************************************************************************************************************/
-                            int portDestination = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getPort() : null;
-                            String destinataire = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getNomRouteur() : null;
-                            /********************************************************************************************************************************/ 
-                            /*******  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   *******/ 
-                            /********************************************************************************************************************************/
+                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD.");                           
+                            logger.info("Routeur-" + this.getNomRouteur() + ": PORT DESTINATION GATEWAY: " + packet.getDestinationGatewayPort());                            
+                            int portDestination = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getPort() : tableRoutageDV.get(packet.getDestinationGatewayPort()).getPort();
+                            String destinataire = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getNomRouteur() : tableRoutageDV.get(packet.getDestinationGatewayPort()).getNomRouteur();
+               
                             sendPacket(packet,portDestination);
                             logger.info("Routeur-" + this.getNomRouteur() + ": le paquet à été transmis à: " + destinataire);
                             
@@ -471,16 +509,21 @@ public class Routeur implements Runnable {
                         logger.info("Routeur-" + this.getNomRouteur() + " le packet reçu à été bien été transmis.");   
                     }
                     //Paquet de type UPDATE pour un DVHandler
-                    if(packet.getType() == UDPPacket.UPDATE){
+                    if(packet.isForUpdate()){
+                        logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type update");
                         //Commencer un thread de DVHandler
-                        /*****************************************************/ 
-                        /*******  TON CODE POUR LE THREAD DV HANDLER   *******/ 
-                        /*****************************************************/
+                        Thread DVThread = new Thread(new DVHandler(packet,this));                      
+                        DVThread.start();
+			logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");
                     }
             }while (true);
 
-        } catch (Exception e) {
-                System.out.println("IO: " + e.getMessage());
+        }catch (SocketException e) {
+                System.out.println("SocketException-Routeur-" + this.getNomRouteur() + " " + e.getMessage());
+        }catch (IOException e) {
+                System.out.println("IOException-Routeur-" + this.getNomRouteur() + " " + e.getMessage());
+        }catch (Exception e) {
+                System.out.println("Exception-Routeur-" + this.getNomRouteur() + " " + e.getMessage());
         }
         finally {
                 logger.info("Routeur-" + this.getNomRouteur() +" Fin du thread.");                
