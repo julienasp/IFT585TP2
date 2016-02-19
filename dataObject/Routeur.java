@@ -516,9 +516,9 @@ public class Routeur implements Runnable {
                     //Paquet de type UPDATE pour un DVHandler
                     if(packet.getType() == UDPPacket.UPDATE){
                         //Commencer un thread de DVHandler
-                        /*****************************************************/ 
-                        /*******  TON CODE POUR LE THREAD DV HANDLER   *******/ 
-                        /*****************************************************/
+                        Thread DVThread = new Thread(new DVHandler(packet, this));
+                        DVThread.start();
+			logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");
                     }
             }while (true);
 
