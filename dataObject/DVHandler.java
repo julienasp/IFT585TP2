@@ -158,6 +158,7 @@ public class DVHandler implements Runnable {
     private Hashtable<Integer,String> tableRoutageDVPourTransfert(){
 
         logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() executed");
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() la table de routage avant transfert: " + this.tableRoutageDV.toString());
 
         Hashtable <Integer,String> tablePourExport = new Hashtable<Integer,String>();
 
@@ -175,17 +176,19 @@ public class DVHandler implements Runnable {
           Integer tempKey = (Integer) entry.getKey();
 
           //On ajoute l'élément à la table pour l'export
-          //tablePourExport.put(tempKey, tempRouteur.getNomRouteur());
-          tablePourExport.put(tempKey,trouverNomRouteurViaPort(tempKey));
+          tablePourExport.put(tempKey, tempRouteur.getNomRouteur());
         }
         logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() un Hashtable stream friendly a été crée.");
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() la table de routage pour le transfert: " + tablePourExport.toString());
+
         return tablePourExport;
     }
     
     
     //Permet de traduire la table recu afin de retrouver nos référence vers les routeurs.
     private Hashtable<Integer,Routeur> traduireTableRoutageDVPourTransert(Hashtable<Integer, String> extractedTable) {
-	logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": traduireTableRoutageDVPourTransert() executed");	
+	logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": traduireTableRoutageDVPourTransert() executed");
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": traduireTableRoutageDVPourTransert() la de routage reçu: " + extractedTable.toString());
         Hashtable <Integer,Routeur> tablePourUpdate = new Hashtable<Integer,Routeur>();
 
         //Création d'un set pour parcourir la Hashtable
@@ -203,8 +206,10 @@ public class DVHandler implements Runnable {
 
           tablePourUpdate.put(tempPort, tempRouteur);
 
-        }
-        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": la traduction à bien été effectué.");
+        }        
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": traduireTableRoutageDVPourTransert() la de routage reçu à bien traduis.");
+        logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": traduireTableRoutageDVPourTransert() la de routage reçu traduite: " + tablePourUpdate.toString());
+
         return tablePourUpdate;
     }
 
@@ -212,7 +217,6 @@ public class DVHandler implements Runnable {
     //Permet d'envoyer notre table à tous nos voisins
     private void sendTableToNeighbours() {
             logger.info("DVHandler:" + myRouteur.getNomRouteur()+ " sendTableToNeighbours() executed.");
-            Enumeration<Routeur> nb = this.tableRoutageDV.elements();
             logger.info("DVHandler:" + myRouteur.getNomRouteur()+ " sendTableToNeighbours() construction du paquet.");
 
             Hashtable <Integer,String> tablePourExport  = tableRoutageDVPourTransfert();
@@ -257,53 +261,57 @@ public class DVHandler implements Runnable {
  
         //On parcours la table reçu
         logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() parcours de la table de: " + routeurVoisinExpediteur.getNomRouteur());
-        for (Routeur routeur : this.neighborTable.values()) {
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() tableRoutageDV du voisin: " + routeurVoisinExpediteur.getNomRouteur() + " est : " + this.neighborTable.toString());
+        for (Map.Entry<Integer,Routeur> e : this.neighborTable.entrySet()) {
             
+            Routeur destinationRouteur = trouverRouteurViaPort( e.getKey() );
+
             //Cout du routeur courant vers son voisin
             Integer coutVersVoisin = this.coutRoutageDV.get(routeurVoisinExpediteur.getNomRouteur());
                 
             //Cout du routeurVoisin vers la nouvelle destination
-            Integer coutVoisinVersDestination = routeurVoisinExpediteur.getCoutRouteurDV().get(routeur.getNomRouteur());
+            Integer coutVoisinVersDestination = routeurVoisinExpediteur.getCoutRouteurDV().get(destinationRouteur.getNomRouteur());
             
+            //Cout total du roueur courant vers la destination via routeurVoisinExpediteur
             Integer coutTotal = coutVersVoisin + coutVoisinVersDestination;
             
             //On valide si l'entrée est présente dans notre table
-            if(!this.tableRoutageDV.containsKey(routeur.getPort())){
-                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() ajout d'une route dans tableRoutageDV vers: " + routeur.getNomRouteur() + " via " + routeurVoisinExpediteur.getNomRouteur());
+            if(!this.tableRoutageDV.containsKey(destinationRouteur.getPort())){
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() ajout d'une route dans tableRoutageDV vers: " + destinationRouteur.getNomRouteur() + " via " + routeurVoisinExpediteur.getNomRouteur());
 
                 //L'entrée n'est pas présente alors on l'ajoutons avec son côut
-                this.tableRoutageDV.put(routeur.getPort(), routeurVoisinExpediteur);                
+                this.tableRoutageDV.put(destinationRouteur.getPort(), routeurVoisinExpediteur);                
                 logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": coutVerVoisin: " + coutVersVoisin.toString());
                 logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": coutVoisinversDest: " + coutVoisinVersDestination.toString());
                 //Nous ajoutons le côuts a notre table de cout
                 //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
-                this.coutRoutageDV.put(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );                
+                this.coutRoutageDV.put(destinationRouteur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );                
 
-                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() ajout d'un cout dans coutRoutageDV de: " + this.coutRoutageDV.get(routeur.getNomRouteur()).toString() + " vers " + routeur.getNomRouteur());
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() ajout d'un cout dans coutRoutageDV de: " + this.coutRoutageDV.get(destinationRouteur.getNomRouteur()).toString() + " vers " + destinationRouteur.getNomRouteur());
 
                  //On signale quon a fait une modification
                 tableRoutageDVWasEdited = true;
             }
             else{
                 //L'entrée existe déja dans notre table de routage  
-                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() route existante dans tableRoutageDV vers: " + routeur.getNomRouteur());
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() route existante dans tableRoutageDV vers: " + destinationRouteur.getNomRouteur());
 
                 //On vérifie si notre côut courant est supérieur à celui reçu
-                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() comparaison: " + this.coutRoutageDV.get(routeur.getNomRouteur()).toString() + " > " + coutTotal.toString() + "?" );
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() comparaison: " + this.coutRoutageDV.get(destinationRouteur.getNomRouteur()).toString() + " > " + coutTotal.toString() + "?" );
 
-                if(this.coutRoutageDV.get(routeur.getNomRouteur()) > coutVersVoisin + coutVoisinVersDestination ){
+                if(this.coutRoutageDV.get(destinationRouteur.getNomRouteur()) > coutVersVoisin + coutVoisinVersDestination ){
                     //Le coût de notre routeur vers la destination est supérieur, alors on le remplace
-                     logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() comparaison: la valeur existante est plus grande. Donc on la remplace!" );
+                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() comparaison: la valeur existante est plus grande. Donc on la remplace!" );
 
                     //L'entrée n'est pas présente alors on l'ajoutons avec son côut
-                    this.tableRoutageDV.replace(routeur.getPort(), routeurVoisinExpediteur); 
+                    this.tableRoutageDV.replace(destinationRouteur.getPort(), routeurVoisinExpediteur); 
                     
-                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() modification de la route dans tableRoutageDV vers: " + routeur.getNomRouteur() + " passe maintenant via " + routeurVoisinExpediteur.getNomRouteur());
+                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() modification de la route dans tableRoutageDV vers: " + destinationRouteur.getNomRouteur() + " passe maintenant via " + routeurVoisinExpediteur.getNomRouteur());
 
                     //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
-                    this.coutRoutageDV.replace(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
+                    this.coutRoutageDV.replace(destinationRouteur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
 
-                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() modification du cout vers: " + routeur.getNomRouteur()  + " le côut est maintenant de: " + this.coutRoutageDV.get(routeur.getNomRouteur()).toString());
+                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() modification du cout vers: " + destinationRouteur.getNomRouteur()  + " le côut est maintenant de: " + this.coutRoutageDV.get(destinationRouteur.getNomRouteur()).toString());
 
                     //On signale quon a fait une modification
                     tableRoutageDVWasEdited = true;
