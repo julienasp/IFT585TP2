@@ -29,7 +29,7 @@ public class DVHandler implements Runnable {
     private Routeur myRouteur;
     private String nomEnvoyeur;
     private Hashtable<String,Routeur> routeurVoisin;
-    private UDPPacket packetRecu;
+    private UDPPacket packetRecu;    
     private Hashtable <Integer,Routeur> neighborTable;	
     private Hashtable <Routeur,Integer> coutRoutageDV;
     private Hashtable <Integer,Routeur> tableRoutageDV ;
@@ -102,29 +102,28 @@ public class DVHandler implements Runnable {
     }
 
     
+    //Permet de trouver le nom du routeur
+    private Routeur trouverRouteurViaPort(Integer port){
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverRouteurViaPort(): trouve l'objet routeur qui correspond au port: " + port.toString());
+
+        for (Routeur routeur : this.myRouteur.getListeRouteurs().values()) {
+                if(routeur.getPort() == port) return routeur;
+        }	
+        return null; // retourne null si le port n'est pas présent dans le réseau
+    }
+    
+    
     //Permet de mettre à jour notre table
-    public void construireTable(Hashtable<Integer, Routeur> tableRecue, String nomEnvoyeur)
-    {
-            //Voisin ayant envoye sa table
-            Enumeration<Arc>testEnum = ArcToVoisins.elements();
-
-            while(testEnum.hasMoreElements())
-            {
-                    Arc curreeeent = testEnum.nextElement();
-            }
-            Arc currentVoisinArc = ArcToVoisins.get(nomEnvoyeur);
-            Routeur currentVoisin ;
-
-            if(currentVoisinArc.getRouteurA().getNomRouteur() == nomEnvoyeur)
-            {
-                    currentVoisin = currentVoisinArc.getRouteurA();
-                    logger.info("Routeur: Neighbor is " + currentVoisinArc.getRouteurA().getNomRouteur());
-            }
-            else 
-            {
-                    currentVoisin = currentVoisinArc.getRouteurB();
-                    logger.info("Routeur: Neighbor is " + currentVoisinArc.getRouteurB().getNomRouteur());
-            }
+    private void updateTable(){        
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() est en cours d'éxécuté.");
+    
+        Routeur routeurExpediteur = trouverRouteurViaPort(this.packetRecu.getSourcePort());
+            
+        //On parcours la table reçu
+        for (Routeur routeur : this.neighborTable.values()) {
+            
+            
+        }
             //ON Parcout les elements de la table recue
             Enumeration<Routeur> nb = tableRecue.elements();
             while(nb.hasMoreElements()) 
@@ -289,25 +288,14 @@ public class DVHandler implements Runnable {
                 if ( tableRoutageDV.isEmpty())
                     {	
                         //Aucune route présente dans la table, alors nous initialisons le routeur pour DV.
-                            initTable();				
-                            sendTableToNeighbours();				
+                        initTable();				
+                        sendTableToNeighbours();				
                     }
-                   /* else
+                    else
                     {
-                            Enumeration<Routeur>testBP = tableRoutageDV.elements();
-                            while(testBP.hasMoreElements())
-                            {
-                                    Routeur test=testBP.nextElement();
-                                    logger.info("Routeur ISSSSS"  + myRouteur.getNomRouteur() + " : Neighbor is " + test.getNomRouteur());
-                            }
-
-                            /*logger.info("Routeur"+myRouteur.getNomRouteur()+"Current New.getName()" +currentNew.getNomRouteur()+"  : CurrentNew.getPort " +currentNew.getPort()
-                            +" myRouteur.getPort()" + myRouteur.getPort()+" this.bestPath.containsKey" + this.bestPath.containsKey(key.getPort()));
-                            */
-                            
-                            //nomEnvoyeur = this.tableRoutageDV.get(myRouteur.getPortVoisin()).getNomRouteur();
-                            //construireTable(this.neighborTable,this.nomEnvoyeur);
-                   // }
+                        //Il existe des routes pour le routeur courant                        
+                        updateTable();
+                    }
 
             }
             catch (Exception e) 
