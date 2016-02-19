@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.DatagramPacket;
+import java.util.Hashtable;
 import protocole.*;
 
 public class Marshallizer {
@@ -30,8 +31,28 @@ public class Marshallizer {
 		return null; 		
 	}
 	
+        
+        
+        public static Object unmarshallHashtableIntegerString(UDPPacket packet) {
+		
+		ByteArrayInputStream bis = new ByteArrayInputStream(packet.getData());
+		ObjectInput in = null;
+		try {
+		in = new ObjectInputStream(bis);
+		Hashtable <Integer,String> o =  (Hashtable <Integer,String>) in.readObject();
+		return o;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null; 		
+	}
 	
 	
+        
 	/**
 	 * Serializes packet to be sent over udp to the manager tablet.
 	 */
@@ -54,5 +75,4 @@ public class Marshallizer {
 	    return null;
 	}
 }
-
 

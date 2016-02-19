@@ -98,7 +98,7 @@ public class Hote implements Runnable, Serializable{
     /**************************************/
     /*************   METHODS  *************/
     /**************************************/
-    public void envoyerMessage(String message, int gatewayDestinationPort,int hoteDestinationPort){
+    public void envoyerMessage(String message, int gatewayDestinationPort,int hoteDestinationPort){   	
         logger.info("Hote-" + nomHote + ": envoyerMessage executed");        
         UDPPacket monMessage = buildPacket(gatewayDestinationPort,hoteDestinationPort,message.getBytes());
         sendPacket(monMessage);
