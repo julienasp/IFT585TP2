@@ -111,74 +111,6 @@ public class DVHandler implements Runnable {
         return null; // retourne null si le port n'est pas présent dans le réseau
     }
     
-    
-    //Permet de mettre à jour notre table
-    private void updateTable(){        
-        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() est en cours d'éxécuté.");
-    
-        Routeur routeurVoisinExpediteur = trouverRouteurViaPort(this.packetRecu.getSourcePort());
-        
-        //variable qui va nous permetre de savoir si nous envoyons au voison ou pas
-         
-        
-        //On parcours la table reçu
-        for (Routeur routeur : this.neighborTable.values()) {
-            
-            //Cout du routeur courant vers son voisin
-            Integer coutVersVoisin = this.coutRoutageDV.get(routeurVoisinExpediteur.getNomRouteur());
-                
-            //Cout du routeurVoisin vers la nouvelle destination
-            Integer coutVoisinVersDestination = routeurVoisinExpediteur.getCoutRouteurDV().get(routeur.getPort());
-            
-            //On valide si l'entrée est présente dans notre table
-            if(!this.tableRoutageDV.containsKey(routeur.getPort())){
-                
-                //L'entrée n'est pas présente alors on l'ajoutons avec son côut
-                this.tableRoutageDV.put(routeur.getPort(), routeurVoisinExpediteur);                
-                
-                //Nous ajoutons le côuts a notre table de cout
-                //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
-                this.coutRoutageDV.put(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
-                
-                //On signale quon a fait une modification
-                tableRoutageDVWasEdited = true;
-            }
-            else{
-                //L'entrée existe déja dans notre table de routage  
-                
-                //On vérifie si notre côut courant est supérieur à celui reçu
-                if(this.coutRoutageDV.get(routeur.getNomRouteur()) > coutVersVoisin + coutVoisinVersDestination ){
-                    //Le coût de notre routeur vers la destination est supérieur, alors on le remplace
-                    
-                    //L'entrée n'est pas présente alors on l'ajoutons avec son côut
-                    this.tableRoutageDV.replace(routeur.getPort(), routeurVoisinExpediteur); 
-                    
-                    //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
-                    this.coutRoutageDV.replace(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
-
-                    //On signale quon a fait une modification
-                    tableRoutageDVWasEdited = true;
-                }
-            }            
-        }            
-    }
-
-    
-    //Permet de initialiser notre table de routage
-    private void initTable()
-    {
-            logger.info("DVHandler:" + myRouteur.getNomRouteur()+ " Initialisation de la table de routage DV.");		
-            //Nous initialisons les côuts vers nos routeurs voisins.
-            for (Routeur routeur : this.routeurVoisin.values()) {
-                //Chemin initiale pour se rendre à nos voisins
-                this.tableRoutageDV.put(routeur.getPort(), routeur);
-
-                //Ajout du côut initiale vers nos routeur voisin
-                this.coutRoutageDV.put(routeur.getNomRouteur(),trouverCoutPour(this.myRouteur.getNomRouteur(),routeur.getNomRouteur()));
-            }
-            logger.info("Routeur:" + myRouteur.getNomRouteur()+ " Initialisation de la table de routage DV terminé.");
-    }
-
 
     //Permet de fabriquer un paquet UDPPacket
     private UDPPacket buildPacket(int gatewayDestinationPort, byte[] data) {
@@ -279,8 +211,82 @@ public class DVHandler implements Runnable {
                 UDPPacket tableUpdate = buildPacket(routeur.getPort(),byteArrayTablePourExport);
                 sendPacket(tableUpdate);
             }		
-    }
+    }    
+    
+    
+    //Permet de initialiser notre table de routage
+    private void initTable()
+    {
+            logger.info("DVHandler:" + myRouteur.getNomRouteur()+ " Initialisation de la table de routage DV.");		
+            //Nous initialisons les côuts vers nos routeurs voisins.
+            for (Routeur routeur : this.routeurVoisin.values()) {
+                //Chemin initiale pour se rendre à nos voisins
+                this.tableRoutageDV.put(routeur.getPort(), routeur);
 
+                //Ajout du côut initiale vers nos routeur voisin
+                this.coutRoutageDV.put(routeur.getNomRouteur(),trouverCoutPour(this.myRouteur.getNomRouteur(),routeur.getNomRouteur()));
+            }
+            logger.info("Routeur:" + myRouteur.getNomRouteur()+ " Initialisation de la table de routage DV terminé.");
+    }
+    
+    
+    //Permet de mettre à jour notre table
+    private void updateTable(){        
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() est en cours d'éxécuté.");
+    
+        Routeur routeurVoisinExpediteur = trouverRouteurViaPort(this.packetRecu.getSourcePort());
+ 
+        //On parcours la table reçu
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() parcours de la table de: " + routeurVoisinExpediteur.getNomRouteur());
+        for (Routeur routeur : this.neighborTable.values()) {
+            
+            //Cout du routeur courant vers son voisin
+            Integer coutVersVoisin = this.coutRoutageDV.get(routeurVoisinExpediteur.getNomRouteur());
+                
+            //Cout du routeurVoisin vers la nouvelle destination
+            Integer coutVoisinVersDestination = routeurVoisinExpediteur.getCoutRouteurDV().get(routeur.getPort());
+            
+            //On valide si l'entrée est présente dans notre table
+            if(!this.tableRoutageDV.containsKey(routeur.getPort())){
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() ajout d'une route dans tableRoutageDV vers: " + routeur.getNomRouteur() + " via " + routeurVoisinExpediteur.getNomRouteur());
+
+                //L'entrée n'est pas présente alors on l'ajoutons avec son côut
+                this.tableRoutageDV.put(routeur.getPort(), routeurVoisinExpediteur);                
+                
+                //Nous ajoutons le côuts a notre table de cout
+                //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
+                this.coutRoutageDV.put(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
+                
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() ajout d'un cout dans coutRoutageDV de: " + this.coutRoutageDV.get(routeur.getNomRouteur()).toString() + " vers " + routeur.getNomRouteur());
+
+                
+                //On signale quon a fait une modification
+                tableRoutageDVWasEdited = true;
+            }
+            else{
+                //L'entrée existe déja dans notre table de routage  
+                
+                //On vérifie si notre côut courant est supérieur à celui reçu
+                if(this.coutRoutageDV.get(routeur.getNomRouteur()) > coutVersVoisin + coutVoisinVersDestination ){
+                    //Le coût de notre routeur vers la destination est supérieur, alors on le remplace
+                    
+                    //L'entrée n'est pas présente alors on l'ajoutons avec son côut
+                    this.tableRoutageDV.replace(routeur.getPort(), routeurVoisinExpediteur); 
+                    
+                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() modification de la route dans tableRoutageDV vers: " + routeur.getNomRouteur() + " passe maintenant via " + routeurVoisinExpediteur.getNomRouteur());
+
+                    //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
+                    this.coutRoutageDV.replace(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
+
+                    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() modification du cout vers: " + routeur.getNomRouteur()  + " le côut est maintenant de: " + this.coutRoutageDV.get(routeur.getNomRouteur()).toString());
+
+                    //On signale quon a fait une modification
+                    tableRoutageDVWasEdited = true;
+                }
+            }            
+        }            
+    }
+    
     
     /**************************************/
     /*************   THREAD   *************/
@@ -302,12 +308,18 @@ public class DVHandler implements Runnable {
                     {
                         //Il existe des routes pour le routeur courant                        
                         updateTable();
+                        
+                        //Si la table a été modifié on envoit les modifications aux voisins
+                        if(tableRoutageDVWasEdited) sendTableToNeighbours();
                     }
 
             }
             catch (Exception e) 
             {
                     System.out.println("IO: " + e.getMessage());
+            }
+            finally {
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": Fin du thread DVHandler. ");                
             }
 
     }
