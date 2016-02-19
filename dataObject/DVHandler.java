@@ -247,7 +247,7 @@ public class DVHandler implements Runnable {
             Integer coutVersVoisin = this.coutRoutageDV.get(routeurVoisinExpediteur.getNomRouteur());
                 
             //Cout du routeurVoisin vers la nouvelle destination
-            Integer coutVoisinVersDestination = routeurVoisinExpediteur.getCoutRouteurDV().get(routeur.getPort());
+            Integer coutVoisinVersDestination = routeurVoisinExpediteur.getCoutRouteurDV().get(routeur.getNomRouteur());
             
             //On valide si l'entrée est présente dans notre table
             if(!this.tableRoutageDV.containsKey(routeur.getPort())){
@@ -255,15 +255,15 @@ public class DVHandler implements Runnable {
 
                 //L'entrée n'est pas présente alors on l'ajoutons avec son côut
                 this.tableRoutageDV.put(routeur.getPort(), routeurVoisinExpediteur);                
-                
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": coutVerVoisin: " + coutVersVoisin.toString());
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": coutVoisinversDest: " + coutVoisinVersDestination.toString());
                 //Nous ajoutons le côuts a notre table de cout
                 //Le cout correspond a notre cout vers le voisin + le cout du voisin vers la destination
-                this.coutRoutageDV.put(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );
-                
+                this.coutRoutageDV.put(routeur.getNomRouteur(), coutVersVoisin + coutVoisinVersDestination );                
+
                 logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": updateTable() ajout d'un cout dans coutRoutageDV de: " + this.coutRoutageDV.get(routeur.getNomRouteur()).toString() + " vers " + routeur.getNomRouteur());
 
-                
-                //On signale quon a fait une modification
+                 //On signale quon a fait une modification
                 tableRoutageDVWasEdited = true;
             }
             else{
@@ -307,13 +307,14 @@ public class DVHandler implements Runnable {
                         initTable();
                         Thread.currentThread().yield();
                          //Timer pour l'attente du routage
-                        Timer WaitBeforeSendTimer = new Timer(); //Timer pour les timeouts
+                        /*Timer WaitBeforeSendTimer = new Timer(); //Timer pour les timeouts
                         WaitBeforeSendTimer.schedule(new TimerTask() {
                             @Override
                             public void run() {
                                 sendTableToNeighbours();
                             }
-                          }, 3000);                        				
+                          }, 3000);  */
+                        sendTableToNeighbours();
                 }
                 else
                 {
@@ -324,6 +325,10 @@ public class DVHandler implements Runnable {
 
                     //Si la table a été modifié on envoit les modifications aux voisins
                     if(tableRoutageDVWasEdited) sendTableToNeighbours();
+                    else{
+                      logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": aucune MaJ pour la tableRoutageDV. "); 
+                      logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": tableRoutageDV: " + this.tableRoutageDV.toString()); 
+                    }
                 }
 
             }

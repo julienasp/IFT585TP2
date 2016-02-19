@@ -115,7 +115,7 @@ public class StartPoint {
                         h1.envoyerMessage("h1 to h2: Hello beautiful world!",rF.getPort(),h2.getPort());
                         h2.envoyerMessage("h2 to h1: Hello beautiful Host!",rA.getPort(),h1.getPort());
                     }
-                  }, 30000);               
+                  }, 15000);               
                
                 
                 //Timer pour terminer l'execution
