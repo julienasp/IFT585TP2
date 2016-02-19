@@ -178,7 +178,7 @@ public class DVHandler implements Runnable {
         Hashtable <Integer,Routeur> tablePourUpdate = new Hashtable<Integer,Routeur>();
 
         //Création d'un set pour parcourir la Hashtable
-        Set set = this.tableRoutageDV.entrySet();
+        Set set = extractedTable.entrySet();
 
         //Création d'un iterator pour parcourir notre set
         Iterator it = set.iterator();
@@ -319,11 +319,11 @@ public class DVHandler implements Runnable {
                 {
                     logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": tableRoutageDV est non vide, donc updateTable() sera appelé. "); 
 
-                    /*//Il existe des routes pour le routeur courant                        
+                    //Il existe des routes pour le routeur courant                        
                     updateTable();
 
                     //Si la table a été modifié on envoit les modifications aux voisins
-                    if(tableRoutageDVWasEdited) sendTableToNeighbours();*/
+                    if(tableRoutageDVWasEdited) sendTableToNeighbours();
                 }
 
             }
