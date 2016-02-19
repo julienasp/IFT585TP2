@@ -7,16 +7,9 @@ package dataObject;
 /**************************************/
 /*************   IMPORTS  *************/
 /**************************************/
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -30,6 +23,9 @@ import utils.Marshallizer;
 
 public class DVHandler implements Runnable {
 
+    /**************************************/
+    /********* PRIVATE ATTRIBUTS **********/
+    /**************************************/
     private Routeur myRouteur;
     private String nomEnvoyeur;
     Hashtable<String,Routeur> routeurVoisin;
@@ -37,19 +33,21 @@ public class DVHandler implements Runnable {
     private Hashtable <Routeur,Integer> coutRoutageDV;
     private Hashtable <Integer,Routeur> tableRoutageDV ;
     private Hashtable <String,Arc> ArcToVoisins = new Hashtable<String,Arc>();
-    private int coutInfini = 1000000;
-    private UDPPacket giftToNeighbor;
-    ;
+    
+    //Private attribut for logging purposes
+    private static final Logger logger = Logger.getLogger(DVHandler.class);
 
-    private static final Logger logger = Logger.getLogger(Routeur.class);
-
+    
+    /**************************************/
+    /************ CONSTRUCTORS *************/
+    /**************************************/
     public DVHandler(Routeur currentRouteur)
     {
             this.myRouteur = currentRouteur;
             this.tableRoutageDV = myRouteur.getTableRoutageDV();
             this.coutRoutageDV = myRouteur.getCoutRouteurDV();
             this.routeurVoisin = trouverVoisin(currentRouteur.getNomRouteur());
-    }
+    }    
 
     public DVHandler(Hashtable<Integer, Routeur> receivedDVTable, Routeur currentRouteur)
     {
@@ -61,6 +59,14 @@ public class DVHandler implements Runnable {
             this.routeurVoisin = trouverVoisin(currentRouteur.getNomRouteur());
     }
 
+    /****AUCUN GETTER ET SETTER, USAGE INTERNE SEULEMENT******/
+    /****************** GETTER AND SETTER ********************/
+    /****AUCUN GETTER ET SETTER, USAGE INTERNE SEULEMENT******/
+    
+    
+    /**************************************/
+    /*************   METHODS  *************/
+    /**************************************/
     //Permet de trouver tous les voisins d'un routeur
     private synchronized Hashtable<String,Routeur> trouverVoisin(String routeurSource){
 
@@ -79,18 +85,22 @@ public class DVHandler implements Runnable {
         return routeurVoisin;
     }
 
+    
+    //Permet de trouver le cout entre deux routeurs
     private synchronized int trouverCoutPour(String routeurA, String routeurB){
-    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverCoutPour(): trouve le côut pour l'arc qui relie " + routeurA + " et " + routeurB);
-    for (Arc value : this.myRouteur.getListeArcs().values()) {
-        if(( value.getRouteurA().getNomRouteur().equals(routeurA) && value.getRouteurB().getNomRouteur().equals(routeurB) ) || ( value.getRouteurA().getNomRouteur().equals(routeurB) && value.getRouteurB().getNomRouteur().equals(routeurA) )){
-            logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverCoutPour(): Le cout pour l'arc qui relie " + routeurA + " et " + routeurB + " est de: " + value.getCout());
-            return value.getCout();                
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverCoutPour(): trouve le côut pour l'arc qui relie " + routeurA + " et " + routeurB);
+        for (Arc value : this.myRouteur.getListeArcs().values()) {
+            if(( value.getRouteurA().getNomRouteur().equals(routeurA) && value.getRouteurB().getNomRouteur().equals(routeurB) ) || ( value.getRouteurA().getNomRouteur().equals(routeurB) && value.getRouteurB().getNomRouteur().equals(routeurA) )){
+                logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverCoutPour(): Le cout pour l'arc qui relie " + routeurA + " et " + routeurB + " est de: " + value.getCout());
+                return value.getCout();                
+            }
         }
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverCoutPour(): aucun arc trouvé entre " + routeurA + " et " + routeurB);
+        return -1; // retourne -1 si l'arc n'existe pas
     }
-    logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverCoutPour(): aucun arc trouvé entre " + routeurA + " et " + routeurB);
-    return -1; // retourne -1 si l'arc n'existe pas
-}
 
+    
+    //Permet de mettre à jour notre table
     public void construireTable(Hashtable<Integer, Routeur> tableRecue, String nomEnvoyeur)
     {
             //Voisin ayant envoye sa table
@@ -145,6 +155,7 @@ public class DVHandler implements Runnable {
             /* FIN MISE A JOUR TABLES */
     }
 
+    
     //Permet de initialiser notre table de routage
     private void initTable()
     {
@@ -218,6 +229,8 @@ public class DVHandler implements Runnable {
 
     }
 
+    
+    //Permet d'envoyer notre table à tous nos voisins
     private void sendTableToNeighbours() {
             logger.info("DVHandler:" + myRouteur.getNomRouteur()+ " sendTableToNeighbours() executed.");
             Enumeration<Routeur> nb = this.tableRoutageDV.elements();
@@ -229,11 +242,16 @@ public class DVHandler implements Runnable {
 
             //Construction du paquet
             for (Routeur routeur : this.routeurVoisin.values()) {
+                logger.info("DVHandler:" + myRouteur.getNomRouteur()+ " sendTableToNeighbours() envoi de la table vers: " + routeur.getNomRouteur());
                 UDPPacket tableUpdate = buildPacket(routeur.getPort(),byteArrayTablePourExport);
                 sendPacket(tableUpdate);
             }		
     }
 
+    
+    /**************************************/
+    /*************   THREAD   *************/
+    /**************************************/
     private void start() {
             logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": new runnable. ");
 
@@ -247,7 +265,7 @@ public class DVHandler implements Runnable {
                             initTable();				
                             sendTableToNeighbours();				
                     }
-                    else
+                   /* else
                     {
                             Enumeration<Routeur>testBP = tableRoutageDV.elements();
                             while(testBP.hasMoreElements())
@@ -259,10 +277,10 @@ public class DVHandler implements Runnable {
                             /*logger.info("Routeur"+myRouteur.getNomRouteur()+"Current New.getName()" +currentNew.getNomRouteur()+"  : CurrentNew.getPort " +currentNew.getPort()
                             +" myRouteur.getPort()" + myRouteur.getPort()+" this.bestPath.containsKey" + this.bestPath.containsKey(key.getPort()));
                             */
-                            trouverVoisin();
-                            nomEnvoyeur = this.tableRoutageDV.get(myRouteur.getPortVoisin()).getNomRouteur();
-                            construireTable(this.neighborTable,this.nomEnvoyeur);
-                    }
+                            
+                            //nomEnvoyeur = this.tableRoutageDV.get(myRouteur.getPortVoisin()).getNomRouteur();
+                            //construireTable(this.neighborTable,this.nomEnvoyeur);
+                   // }
 
             }
             catch (Exception e) 
