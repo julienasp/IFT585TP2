@@ -481,7 +481,6 @@ public class Routeur implements Runnable {
                     logger.info("Routeur-" + this.getNomRouteur() + ": a packet was receive");                   
                     
                     UDPPacket packet = (UDPPacket) Marshallizer.unmarshall(packetReceive);
-                    logger.info("Routeur-" + this.getNomRouteur() +" contenu est :" + packet.toString());
                     
                     //Paquet de type FOWARD
                     if(packet.isForFoward()){
@@ -516,8 +515,10 @@ public class Routeur implements Runnable {
                     }
                     //Paquet de type UPDATE pour un DVHandler
                     if(packet.isForUpdate()){
+                        logger.info("Routeur-" + this.getNomRouteur() + ": a reçu un paquet de type update");
                         //Commencer un thread de DVHandler
                         Thread DVThread = new Thread(new DVHandler(packet, this));
+                        logger.info("Routeur-" + this.getNomRouteur() + ": AVANT START");
                         DVThread.start();
 			logger.info("Routeur-" + this.getNomRouteur() + ": Update Thread Started.");
                     }

@@ -51,15 +51,17 @@ public class DVHandler implements Runnable {
             this.routeurVoisin = trouverVoisin(currentRouteur.getNomRouteur());
     }    
 
-    public DVHandler(UDPPacket packetRecu, Routeur currentRouteur)
-    {
+    public DVHandler(UDPPacket packetRecu, Routeur currentRouteur){
+            logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": Dans constructeur: ");
+
             // TODO Auto-generated constructor stub
             this.packetRecu = packetRecu;
-            this.neighborTable = traduireTableRoutageDVPourTransert((Hashtable <Integer,String>) utils.Marshallizer.unmarshallHashtableIntegerString(packetRecu));
             this.myRouteur = currentRouteur;
             this.tableRoutageDV=currentRouteur.getTableRoutageDV();
             this.coutRoutageDV = myRouteur.getCoutRouteurDV();
             this.routeurVoisin = trouverVoisin(currentRouteur.getNomRouteur());
+            this.neighborTable = traduireTableRoutageDVPourTransert((Hashtable <Integer,String>) utils.Marshallizer.unmarshallHashtableIntegerString(packetRecu));
+           
     }
 
     /****AUCUN GETTER ET SETTER, USAGE INTERNE SEULEMENT******/
