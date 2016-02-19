@@ -114,6 +114,16 @@ public class DVHandler implements Runnable {
         return null; // retourne null si le port n'est pas présent dans le réseau
     }
     
+    //Permet de trouver le nom du routeur
+    private String trouverNomRouteurViaPort(Integer port){
+        logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": trouverRouteurViaPort(): trouve l'objet routeur qui correspond au port: " + port.toString());
+
+        for (Routeur routeur : this.myRouteur.getListeRouteurs().values()) {
+                if(routeur.getPort() == port) return routeur.getNomRouteur();
+        }	
+        return null; // retourne null si le port n'est pas présent dans le réseau
+    }
+    
 
     //Permet de fabriquer un paquet UDPPacket
     private UDPPacket buildPacket(int gatewayDestinationPort, byte[] data) {
@@ -165,7 +175,8 @@ public class DVHandler implements Runnable {
           Integer tempKey = (Integer) entry.getKey();
 
           //On ajoute l'élément à la table pour l'export
-          tablePourExport.put(tempKey, tempRouteur.getNomRouteur());
+          //tablePourExport.put(tempKey, tempRouteur.getNomRouteur());
+          tablePourExport.put(tempKey,trouverNomRouteurViaPort(tempKey));
         }
         logger.info("DVHandler-:" + myRouteur.getNomRouteur()+ ": tableRoutageDVPourTransfert() un Hashtable stream friendly a été crée.");
         return tablePourExport;
@@ -334,7 +345,7 @@ public class DVHandler implements Runnable {
                     //Il existe des routes pour le routeur courant                        
                     updateTable();
 
-                    //Si la table a été modifié on envoit les modifications aux voisins
+                    //Si la table a été modifié on envoit les modifications aux voisins                    
                     if(tableRoutageDVWasEdited) sendTableToNeighbours();
                     else{
                       logger.info("DVHandler-" + this.myRouteur.getNomRouteur() +": aucune MaJ pour la tableRoutageDV. "); 

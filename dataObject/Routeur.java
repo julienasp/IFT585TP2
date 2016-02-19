@@ -496,22 +496,11 @@ public class Routeur implements Runnable {
                         }
                         else
                         {
-                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD."); 
-                            /********************************************************************************************************************************/ 
-                            /*******  IL VA FALLOIR MODIFIER LA VALEUR ELSE POUR portDestination et destinataire, afin d'utiliser la tableRoutageDV   *******/ 
-                            /********************************************************************************************************************************/
-                            logger.info("Routeur-" + this.getNomRouteur() + ": PORT DESTINATION GATEWAY: " + packet.getDestinationGatewayPort());
-                            logger.info("Routeur-" + this.getNomRouteur() + ": TABLE DV: " + tableRoutageDV.toString());
-                            tableRoutageDV.get(packet.getDestinationGatewayPort()).getPort();
-                            logger.info("Routeur-" + this.getNomRouteur() + ": MEGA TEST2.");
+                            logger.info("Routeur-" + this.getNomRouteur() + ": la destination n'est pas dans notre table d'hôte. Alors on FOWARD.");                           
+                            logger.info("Routeur-" + this.getNomRouteur() + ": PORT DESTINATION GATEWAY: " + packet.getDestinationGatewayPort());                            
                             int portDestination = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getPort() : tableRoutageDV.get(packet.getDestinationGatewayPort()).getPort();
-                            logger.info("Routeur-" + this.getNomRouteur() + ": APRES PORT DEST."); 
-
                             String destinataire = (typeRoutage == Reseau.LSROUTING) ?  tableRoutageLS.get(packet.getDestinationGatewayPort()).getNomRouteur() : tableRoutageDV.get(packet.getDestinationGatewayPort()).getNomRouteur();
-                            logger.info("Routeur-" + this.getNomRouteur() + ": APRES DESTINATAIRE."); 
-                            /********************************************************************************************************************************/ 
-                            /*******  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   *******/ 
-                            /********************************************************************************************************************************/
+               
                             sendPacket(packet,portDestination);
                             logger.info("Routeur-" + this.getNomRouteur() + ": le paquet à été transmis à: " + destinataire);
                             
